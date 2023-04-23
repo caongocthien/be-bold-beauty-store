@@ -15,6 +15,7 @@
   "dependencies": {
     "@floating-ui/react": "^0.23.1",
     "@hookform/resolvers": "^3.1.0",
+    "@reduxjs/toolkit": "^1.9.5",
     "@tanstack/react-query": "^4.29.3",
     "@tanstack/react-query-devtools": "^4.29.3",
     "@types/lodash": "^4.14.194",
@@ -25,6 +26,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.9",
     "react-icons": "^4.8.0",
+    "react-redux": "^8.0.5",
     "react-router-dom": "^6.10.0",
     "react-toastify": "^9.1.2",
     "yup": "^1.1.1"
