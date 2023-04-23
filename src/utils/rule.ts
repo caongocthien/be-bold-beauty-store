@@ -22,7 +22,12 @@ export const schema = yup
       .required('Confirm password is required')
       .min(6, 'Confirm password should be 6 - 60 characters')
       .max(60, 'Confirm password should be 6 - 60 characters')
-      .oneOf([yup.ref('password')], 'Confirm password is not match')
+      .oneOf([yup.ref('password')], 'Confirm password is not match'),
+    identifier: yup
+      .string()
+      .required('Email or User name is required')
+      .min(6, 'Email or User name should be 6 - 60 characters')
+      .max(60, 'Email or User name should be 6 - 60 characters')
   })
   .required()
 

@@ -8,12 +8,12 @@ export interface User {
   createdAt: string
   updatedAt: string
   phone: string
-  role: {
-    id: number
-    name: string
-    description: string
-    type: string
-    createdAt: string
-    updatedAt: string
-  }
+  // role: {
+  //   id: number
+  //   name: string
+  //   description: string
+  //   type: string
+  //   createdAt: string
+  //   updatedAt: string
+  // }
 }
