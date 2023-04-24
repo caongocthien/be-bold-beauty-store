@@ -7,5 +7,5 @@ export const removeJwtToLocalStorage = () => {
 }
 
 export const getJwtToLocalStorage = () => {
-  return localStorage.getItem('jwt') || ''
+  return localStorage.getItem('jwt')
 }

@@ -6,12 +6,15 @@ import { FormData as Schema, schema } from '~/utils/rule'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { login } from '~/apis/auth.api'
 import { toast } from 'react-toastify'
+import { useAppDispatch } from '~/hooks'
+import { saveJwtToLocalStorage } from '~/auth/authSlide'
 
 type FormData = Pick<Schema, 'identifier' | 'password'>
 
 const loginSchema = schema.pick(['identifier', 'password'])
 
 export default function Login() {
+  const dispatch = useAppDispatch()
   const {
     register,
     handleSubmit,
@@ -28,11 +31,16 @@ export default function Login() {
   const onSubmit = handleSubmit((data) => {
     loginMutation.mutate(data, {
       onSuccess: (data) => {
+        dispatch(saveJwtToLocalStorage(data.data.jwt))
         reset()
-        toast.success('Login has been successfully!')
+        toast.success('Login has been successfully!', {
+          autoClose: 2000
+        })
       },
       onError: (error: any) => {
-        toast.error(error.response.data.error.message)
+        toast.error(error.response.data.error.message, {
+          autoClose: 2000
+        })
       }
     })
   })

@@ -5,10 +5,11 @@ import Register from './pages/Register'
 import RegisterLayout from './layouts/RegisterLayout'
 import MainLayout from './layouts/MainLayout'
 import Profile from './pages/Profile'
-import { useState } from 'react'
+import { useAppSelector } from './hooks'
 
 export default function useRouteElement() {
-  const isAuthentication = true
+  const isAuthentication = useAppSelector((state) => state.auth.isAuthentication)
+
   const ProtectedRoute = () => {
     return isAuthentication ? <Outlet /> : <Navigate to='/login' />
   }

@@ -15,8 +15,12 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRef, useState } from 'react'
 import Popover from '../Popover'
+import { useAppDispatch, useAppSelector } from '~/hooks'
+import { removeJwtToLocalStorage } from '~/auth/authSlide'
 
 export default function Header() {
+  const dispatch = useAppDispatch()
+  const auth = useAppSelector((state) => state.auth.isAuthentication)
   const arrowRef = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
   const { x, y, strategy, refs, context } = useFloating({
@@ -34,6 +38,11 @@ export default function Header() {
     handleClose: safePolygon()
   })
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
+
+  const handleLogout = () => {
+    dispatch(removeJwtToLocalStorage())
+  }
+
   return (
     <header>
       <div className='max-w-full'>
@@ -112,26 +121,31 @@ export default function Header() {
                       strokeOpacity={0.1}
                     />
                     <div className='bg-white rounded shadow flex flex-col  py-3 '>
-                      {/* <>
-                        <Link to={'/register'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
-                          Sign up
-                        </Link>
-                        <Link to={'/login'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
-                          Sign in
-                        </Link>
-                      </> */}
-
-                      <>
-                        <Link to={'/'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
-                          My account
-                        </Link>
-                        <Link to={'/'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
-                          My purcharse
-                        </Link>
-                        <Link to={'/'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
-                          Logout
-                        </Link>
-                      </>
+                      {auth ? (
+                        <>
+                          <Link to={'/'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
+                            My account
+                          </Link>
+                          <Link to={'/'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
+                            My purcharse
+                          </Link>
+                          <button
+                            onClick={handleLogout}
+                            className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500 text-start'
+                          >
+                            Log out
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <Link to={'/register'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
+                            Sign up
+                          </Link>
+                          <Link to={'/login'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
+                            Sign in
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </motion.div>
                 </FloatingPortal>

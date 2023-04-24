@@ -6,10 +6,13 @@ import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FormData as Schema, schema } from '~/utils/rule'
 import { register as registerAccount } from '~/apis/auth.api'
+import { useAppDispatch } from '~/hooks'
+import { saveJwtToLocalStorage } from '~/auth/authSlide'
 type FormData = Pick<Schema, 'email' | 'password' | 'username' | 'phone' | 'confirm_password'>
 const schemeRegister = schema.pick(['email', 'username', 'phone', 'password', 'confirm_password'])
 
 export default function Register() {
+  const dispatch = useAppDispatch()
   const {
     register,
     handleSubmit,
@@ -27,11 +30,16 @@ export default function Register() {
     const body = omit(data, ['confirm_password'])
     registerUserMutation.mutate(body, {
       onSuccess: (data) => {
+        dispatch(saveJwtToLocalStorage(data.data.jwt))
         reset()
-        toast.success('Register has been successfully!')
+        toast.success('Register has been successfully!', {
+          autoClose: 2000
+        })
       },
       onError: (error: any) => {
-        toast.error(error.response.data.error.message)
+        toast.error(error.response.data.error.message, {
+          autoClose: 2000
+        })
       }
     })
   })
