@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom'
 
 export default function RegisterHeader() {
   const { pathname } = useLocation()
-  console.log(pathname)
   return (
     <header>
       <div className='max-w-full'>

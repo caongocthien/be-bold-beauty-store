@@ -1,5 +1,3 @@
-import React from 'react'
-
 type title = {
   title_1?: string
   title_2?: string
@@ -11,12 +9,21 @@ interface Props {
   title?: title
   classNameBanner?: string
   classNameTitle?: string
+  bannerHeight?: number
 }
 
-export default function Banner({ image, title, classNameBanner = 'min-h-[80vh]', classNameTitle }: Props) {
+export default function Banner({
+  image,
+  title,
+  bannerHeight = 80,
+  classNameBanner = '',
+  classNameTitle = 'flex items-center'
+}: Props) {
   return (
-    <div className={`${classNameBanner} bg-fixed bg-center bg-no-repeat bg-cover bg-[url("${image}")]`}>
-      <div className={`${classNameTitle} flex items-center min-h-[80vh] pl-12`}>
+    <div
+      className={`${classNameBanner} min-h-[${bannerHeight}vh]  bg-center object-cover bg-no-repeat lg:bg-cover bg-[url("${image}")]`}
+    >
+      <div className={`min-h-[${bannerHeight}vh] ${classNameBanner} ${classNameTitle} `}>
         <div className='text-white max-w-screen-sm flex-grow'>
           <div className='text-base mb-5 uppercase'>{title?.title_1}</div>
           <div className='text-6xl mb-5 capitalize'>{title?.title_2}</div>
