@@ -9,21 +9,13 @@ interface Props {
   title?: title
   classNameBanner?: string
   classNameTitle?: string
-  bannerHeight?: number
+  bannerHeight?: string
 }
 
-export default function Banner({
-  image,
-  title,
-  bannerHeight = 80,
-  classNameBanner = '',
-  classNameTitle = 'flex items-center'
-}: Props) {
+export default function Banner({ image, title, classNameBanner = '', classNameTitle = 'flex items-center' }: Props) {
   return (
-    <div
-      className={`${classNameBanner} min-h-[${bannerHeight}vh]  bg-center object-cover bg-no-repeat lg:bg-cover bg-[url("${image}")]`}
-    >
-      <div className={`min-h-[${bannerHeight}vh] ${classNameBanner} ${classNameTitle} `}>
+    <div className={`${classNameBanner} bg-center object-cover bg-no-repeat lg:bg-cover bg-[url("${image}")]`}>
+      <div className={` ${classNameBanner} ${classNameTitle} `}>
         <div className='text-white max-w-screen-sm flex-grow'>
           <div className='text-base mb-5 uppercase'>{title?.title_1}</div>
           <div className='text-6xl mb-5 capitalize'>{title?.title_2}</div>
