@@ -74,7 +74,7 @@ export const product = [
   {
     id: 7,
     name: 'product 1',
-    price: 40,
+    price: 60,
     price_discount: 30,
     img: 'https://websitedemos.net/be-bold-beauty-store-04/wp-content/uploads/sites/1117/2022/08/product-14-a-300x366.jpg'
   }
