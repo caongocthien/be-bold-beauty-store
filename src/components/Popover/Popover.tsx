@@ -36,11 +36,9 @@ export default function Popover({ refElement, children }: Props) {
   })
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
   return (
-    <>
-      <div className='flex' ref={refs.setReference} {...getReferenceProps()}>
+    <div>
+      <div className='flex ' ref={refs.setReference} {...getReferenceProps()}>
         {refElement}
-        {/* <FaUserAlt className='text-lg ' /> */}
-        {/* <span className='font-bold'>Cao Ngoc Thien</span> */}
       </div>
       <AnimatePresence>
         {isOpen && (
@@ -72,6 +70,6 @@ export default function Popover({ refElement, children }: Props) {
           </FloatingPortal>
         )}
       </AnimatePresence>
-    </>
+    </div>
   )
 }

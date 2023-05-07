@@ -6,7 +6,7 @@ import { FormData as Schema, schema } from '~/utils/rule'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { login } from '~/apis/auth.api'
 import { toast } from 'react-toastify'
-import { useAppDispatch } from '~/hooks'
+import { useAppDispatch } from '~/hooks/hooks'
 import { saveJwtToLocalStorage } from '~/auth/authSlide'
 
 type FormData = Pick<Schema, 'identifier' | 'password'>

@@ -4,15 +4,31 @@ import 'swiper/css/pagination'
 import Slider from '~/components/Slider'
 import { Link } from 'react-router-dom'
 import Banner from '~/components/Banner'
-import { AiOutlineStar } from 'react-icons/ai'
 import { FaShippingFast } from 'react-icons/fa'
-
 import { product } from '~/constants/utils'
 import { useQuery } from '@tanstack/react-query'
 import { getBrands } from '~/apis/brand.api'
+import Product from '~/components/Product'
+import { getProducts } from '~/apis/product.api'
+import CONSTANTS from '~/constants/constants'
 
 export default function Home() {
-  const brandQuery = useQuery({ queryKey: ['brands'], queryFn: getBrands })
+  const brandsQuery = useQuery({
+    queryKey: ['brands'],
+    queryFn: getBrands,
+    keepPreviousData: true,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000
+  })
+
+  const productsQuery = useQuery({
+    queryKey: ['products'],
+    queryFn: () => getProducts(),
+    keepPreviousData: true,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000
+  })
+
   return (
     <div className='w-full'>
       {/* banner 1 */}
@@ -30,17 +46,22 @@ export default function Home() {
       />
 
       {/* slider brand */}
-      {brandQuery.data?.data.data && (
+      {brandsQuery.data?.data.data && (
         <div className='py-8 px-[1px]'>
           <Slider
             spaceBetween={20}
             slidesPerView={5}
-            slideItems={brandQuery.data?.data.data.map((item) => {
+            slideItems={brandsQuery.data?.data.data.map((item) => {
               return (
-                <Link to={`/product?category=${item.id}`} key={item.id}>
+                <Link
+                  to={`/products/brand/${item.id}`}
+                  key={item.id}
+                  state={{ title: item.attributes.name, query: CONSTANTS.queryParam.GET_PRODUCTS_BY_BRAND }}
+                >
                   <img
-                    src={item.attributes.logo.data.attributes.formats.medium.url}
-                    alt=''
+                    src={item.attributes.logo.data.attributes.url}
+                    alt={item.attributes.name}
+                    width={170}
                     className=' h-36 object-contain'
                   />
                 </Link>
@@ -63,23 +84,14 @@ export default function Home() {
             slidesPerView={4}
             slideItems={product.map((item, index) => {
               return (
-                <Link to={'/'} key={index}>
-                  <img className='h-auto w-full' src={item.img} alt='' />
-                  <div className='mt-3'>
-                    <div className='flex mt-1 text-sm'>
-                      <AiOutlineStar />
-                      <AiOutlineStar />
-                      <AiOutlineStar />
-                      <AiOutlineStar />
-                      <AiOutlineStar />
-                    </div>
-                    <div className='mt-1 text-sm'>{item.name}</div>
-                    <div className='mt-1 text-sm'>
-                      <span className='line-through text-gray-500 font-bold'>d{item.price}</span>
-                      <span className='ml-1 font-bold text-gray-700'>d{item.price_discount}</span>
-                    </div>
-                  </div>
-                </Link>
+                <Product
+                  id={item.id}
+                  key={index}
+                  imgUrl={item.img}
+                  name={item.name}
+                  price={item.price}
+                  price_discount={item.price_discount}
+                />
               )
             })}
           />
@@ -98,23 +110,14 @@ export default function Home() {
             slidesPerView={4}
             slideItems={product.map((item, index) => {
               return (
-                <Link to={'/'} key={index}>
-                  <img className='h-auto w-full' src={item.img} alt='' />
-                  <div className='mt-3'>
-                    <div className='flex mt-1 text-sm'>
-                      <AiOutlineStar />
-                      <AiOutlineStar />
-                      <AiOutlineStar />
-                      <AiOutlineStar />
-                      <AiOutlineStar />
-                    </div>
-                    <div className='mt-1 text-sm'>{item.name}</div>
-                    <div className='mt-1 text-sm'>
-                      <span className='line-through text-gray-500 font-bold'>d{item.price}</span>
-                      <span className='ml-1 font-bold text-gray-700'>d{item.price_discount}</span>
-                    </div>
-                  </div>
-                </Link>
+                <Product
+                  id={item.id}
+                  key={index}
+                  imgUrl={item.img}
+                  name={item.name}
+                  price={item.price}
+                  price_discount={item.price_discount}
+                />
               )
             })}
           />

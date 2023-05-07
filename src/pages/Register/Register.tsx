@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FormData as Schema, schema } from '~/utils/rule'
 import { register as registerAccount } from '~/apis/auth.api'
-import { useAppDispatch } from '~/hooks'
+import { useAppDispatch } from '~/hooks/hooks'
 import { saveJwtToLocalStorage } from '~/auth/authSlide'
 type FormData = Pick<Schema, 'email' | 'password' | 'username' | 'phone' | 'confirm_password'>
 const schemeRegister = schema.pick(['email', 'username', 'phone', 'password', 'confirm_password'])

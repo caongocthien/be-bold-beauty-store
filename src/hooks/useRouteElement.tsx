@@ -1,11 +1,13 @@
 import { Navigate, Outlet, useRoutes } from 'react-router-dom'
-import Home from './pages/Home'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import RegisterLayout from './layouts/RegisterLayout'
-import MainLayout from './layouts/MainLayout'
-import Profile from './pages/Profile'
+import Home from '../pages/Home'
+import Login from '../pages/Login'
+import Register from '../pages/Register'
+import RegisterLayout from '../layouts/RegisterLayout'
+import MainLayout from '../layouts/MainLayout'
+import Profile from '../pages/Profile'
 import { useAppSelector } from './hooks'
+import Product from '../pages/Product'
+import Products from '../pages/Products'
 
 export default function useRouteElement() {
   const isAuthentication = useAppSelector((state) => state.auth.isAuthentication)
@@ -61,6 +63,40 @@ export default function useRouteElement() {
           )
         }
       ]
+    },
+    {
+      path: '/product/:id',
+      element: (
+        <MainLayout>
+          <Product />
+        </MainLayout>
+      )
+    },
+    {
+      path: '/products/all-products',
+      element: (
+        <MainLayout>
+          <Products />
+        </MainLayout>
+      )
+    },
+    {
+      path: '/products/category/:id',
+      element: (
+        <MainLayout>
+          {/* <Category /> */}
+          <Products />
+        </MainLayout>
+      )
+    },
+    {
+      path: '/products/brand/:id',
+      element: (
+        <MainLayout>
+          {/* <Brand /> */}
+          <Products />
+        </MainLayout>
+      )
     }
   ])
 
