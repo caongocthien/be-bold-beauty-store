@@ -8,6 +8,7 @@ import { removeJwtToLocalStorage } from '~/auth/authSlide'
 import { useQuery } from '@tanstack/react-query'
 import { getCategories } from '~/apis/category.api'
 import CONSTANTS from '~/constants/constants'
+import { generateNameId } from '~/utils/utils'
 
 export default function Header() {
   const dispatch = useAppDispatch()
@@ -54,7 +55,7 @@ export default function Header() {
             categoriesQuery.data?.data.data.map((item) => (
               <NavLink
                 key={item.id}
-                to={`/products/category/${item.id}`}
+                to={`/products/category/${generateNameId({ name: item.attributes.name, id: item.id })}`}
                 className={({ isActive }) =>
                   classNames('px-3 h-full flex items-center border-t-[1px] hover:text-[#f09db8]', {
                     'font-bold  border-[#f09db8] text-[#f09db8]': isActive,

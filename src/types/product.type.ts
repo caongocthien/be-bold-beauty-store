@@ -62,7 +62,7 @@ interface ProductImage {
   }
 }
 
-export interface ProductConfig {
+export interface ProductListConfig {
   sort?: string | []
   filters?: object
   populate?: string | object

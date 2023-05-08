@@ -11,6 +11,7 @@ import { getBrands } from '~/apis/brand.api'
 import Product from '~/components/Product'
 import { getProducts } from '~/apis/product.api'
 import CONSTANTS from '~/constants/constants'
+import { generateNameId } from '~/utils/utils'
 
 export default function Home() {
   const brandsQuery = useQuery({
@@ -54,9 +55,9 @@ export default function Home() {
             slideItems={brandsQuery.data?.data.data.map((item) => {
               return (
                 <Link
-                  to={`/products/brand/${item.id}`}
+                  to={`/products/brand/${generateNameId({ name: item.attributes.name, id: item.id })}`}
                   key={item.id}
-                  state={{ title: item.attributes.name, query: CONSTANTS.queryParam.GET_PRODUCTS_BY_BRAND }}
+                  state={{ title: item.attributes.name, query2: CONSTANTS.queryParam.GET_PRODUCTS_BY_BRAND }}
                 >
                   <img
                     src={item.attributes.logo.data.attributes.url}

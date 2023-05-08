@@ -81,7 +81,7 @@ export default function useRouteElement() {
       )
     },
     {
-      path: '/products/category/:id',
+      path: '/products/category/:nameId',
       element: (
         <MainLayout>
           {/* <Category /> */}
@@ -90,7 +90,7 @@ export default function useRouteElement() {
       )
     },
     {
-      path: '/products/brand/:id',
+      path: '/products/brand/:nameId',
       element: (
         <MainLayout>
           {/* <Brand /> */}

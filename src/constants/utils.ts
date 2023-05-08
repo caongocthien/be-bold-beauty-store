@@ -1,33 +1,3 @@
-export const brand = [
-  {
-    img: 'https://logos-world.net/wp-content/uploads/2020/04/LOreal-Logo.png'
-  },
-  {
-    img: 'https://logos-download.com/wp-content/uploads/2016/05/Bior%C3%A9_logo_logotype.png'
-  },
-  {
-    img: 'https://i.pinimg.com/originals/4b/c7/1b/4bc71be1e103635a2f5d1ca0299e42a8.png'
-  },
-  {
-    img: 'https://logos-world.net/wp-content/uploads/2020/04/LOreal-Logo.png'
-  },
-  {
-    img: 'https://logos-download.com/wp-content/uploads/2016/05/Bior%C3%A9_logo_logotype.png'
-  },
-  {
-    img: 'https://i.pinimg.com/originals/4b/c7/1b/4bc71be1e103635a2f5d1ca0299e42a8.png'
-  },
-  {
-    img: 'https://logos-world.net/wp-content/uploads/2020/04/LOreal-Logo.png'
-  },
-  {
-    img: 'https://logos-download.com/wp-content/uploads/2016/05/Bior%C3%A9_logo_logotype.png'
-  },
-  {
-    img: 'https://i.pinimg.com/originals/4b/c7/1b/4bc71be1e103635a2f5d1ca0299e42a8.png'
-  }
-]
-
 export const product = [
   {
     id: 1,
