@@ -1,11 +1,14 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link, createSearchParams, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { createSearchParams, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getProducts } from '~/apis/product.api'
 import Product from '~/components/Product'
 import ProductSkeleton from '~/components/ProductSkeleton'
 import { convertQueryStringToQueryObj, getIdFromNameId } from '~/utils/utils'
 import QueryString from 'qs'
 import { ProductListConfig } from '~/types/product.type'
+import { getBrand } from '~/apis/brand.api'
+import { getCategory } from '~/apis/category.api'
+import CONSTANTS from '~/constants/constants'
 
 export type QueryConfig = {
   [key in keyof ProductListConfig]: string
@@ -55,6 +58,18 @@ export default function Products() {
     )
   )
 
+  const categoryQuery = useQuery({
+    queryKey: ['categoryName', pathname, id],
+    queryFn: () => getCategory(id as string),
+    keepPreviousData: true
+  })
+
+  const brandQuery = useQuery({
+    queryKey: ['brandName', pathname, id],
+    queryFn: () => getBrand(id as string),
+    keepPreviousData: true
+  })
+
   const productsQuery = useQuery({
     queryKey: ['products', pathname, queryConfig],
     queryFn: () => getProducts(queryConfig),
@@ -64,7 +79,6 @@ export default function Products() {
   })
 
   const handlePriceOrder = (orderValue: string) => {
-    console.log('orderValue', orderValue)
     navigate({
       pathname: pathname,
       search: createSearchParams({
@@ -78,12 +92,16 @@ export default function Products() {
     })
   }
 
-  console.log(productsQuery.data?.data.data)
   return (
     <div className='container m-auto '>
       <div className='py-16 mx-5'>
         <div className='text-base text-gray-400 mb-4'>Home/Skin Care</div>
-        <div className='text-6xl mb-16'>Hello</div>
+        <div className='text-6xl mb-16'>
+          {(pathname.includes('category') && categoryQuery.data?.data.data.attributes.name) ||
+            (pathname.includes('brand') && brandQuery.data?.data.data.attributes.name) ||
+            ''}
+          {!pathname.includes('category') && !pathname.includes('brand') && CONSTANTS.allProducts}
+        </div>
         {productsQuery.isFetching && (
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mt-10'>
             <ProductSkeleton />
