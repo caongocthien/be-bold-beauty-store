@@ -7,9 +7,11 @@ import { useState } from 'react'
 import { ProductImage } from '~/types/product.type'
 import Product from '~/components/Product'
 import { Navigation } from 'swiper'
+import classNames from 'classnames'
 
 export default function ProductDetail() {
   const [productImageIndex, setProductImageIndex] = useState(0)
+  const [quantity, setQuantity] = useState(1)
 
   const { nameId } = useParams()
   const id = getIdFromNameId(nameId as string)
@@ -64,10 +66,13 @@ export default function ProductDetail() {
         </div>
         <div className='col-span-7'>
           <div>
-            <div>Home / Hair Care / Product Name 1</div>
-            <div>Hair Care</div>
-            <div>$75.00 $59.00 & Free Shipping</div>
-            <div>
+            <div className='text-gray-400 text-base mb-5'>Home / Hair Care / Product Name 1</div>
+            <div className='text-lg text-gray-700 mb-5'>Hair Care</div>
+            <div className='text-4xl mb-5 font-bold text-gray-700'>
+              <span className='line-through text-gray-500 text-3xl'>$75.00</span> $59.00{' '}
+              <span className='text-lg font-normal'> & Free Shipping</span>
+            </div>
+            <div className='text-lg mb-5 '>
               Ut quis sollicitudin orci. Aliquam at libero non purus sodales sagittis eu ac neque. Nunc ipsum felis,
               vehicula eu aliquam sed, ultricies ac lacus. Vestibulum ante ipsum primis in faucibus orci luctus et
               ultrices posuere cubilia curae; Nam viverra commodo finibus. Morbi laoreet lacus quis lobortis tempor. Nam
@@ -75,14 +80,35 @@ export default function ProductDetail() {
               Nulla eget tortor ultrices, ultricies turpis a, accumsan turpis. Quisque dignissim semper leo ac accumsan.
               Quisque est nisl, bibendum ut elit quis, pellentesque vehicula tellus. Sed luctus mattis ante ac posuere.
             </div>
-            <div className='flex '>
+            <div className='flex mb-10'>
               <div className='flex '>
-                <button className='border p-3'>-</button>
-                <input type='number' className='outline-none border text-center' />
-                <button className='border p-3'>+</button>
+                <button disabled={quantity <= 1} className='border p-3' onClick={() => setQuantity((prev) => prev - 1)}>
+                  -
+                </button>
+                <input
+                  type='number'
+                  className='outline-none border text-center'
+                  value={quantity}
+                  onChange={(event) =>
+                    Number(event.target.value) < 1 ? setQuantity(1) : setQuantity(Number(event.target.value))
+                  }
+                />
+                <button className='border p-3' onClick={() => setQuantity((prev) => prev + 1)}>
+                  +
+                </button>
               </div>
             </div>
-            <div className='h-[1px] bg-pink-200 w-full'></div>
+
+            <button
+              disabled={quantity > product.attributes.inventory}
+              className={classNames('p-4 bg-pink-300 mb-5', {
+                'bg-gray-400': quantity > product.attributes.inventory
+              })}
+            >
+              Them vao gio hang
+            </button>
+
+            <div className='h-[1px] bg-pink-200 w-full mb-5'></div>
             <div>Category: Hair Care</div>
           </div>
         </div>
