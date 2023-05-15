@@ -38,7 +38,7 @@ export interface Product {
   }
 }
 
-interface ProductImage {
+export interface ProductImage {
   id: number
   attributes: {
     name: string

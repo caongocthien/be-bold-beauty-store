@@ -6,7 +6,7 @@ import RegisterLayout from '../layouts/RegisterLayout'
 import MainLayout from '../layouts/MainLayout'
 import Profile from '../pages/Profile'
 import { useAppSelector } from './hooks'
-import Product from '../pages/Product'
+import Product from '../pages/ProductDetail'
 import Products from '../pages/Products'
 
 export default function useRouteElement() {
@@ -65,7 +65,7 @@ export default function useRouteElement() {
       ]
     },
     {
-      path: '/product/:id',
+      path: '/product/:nameId',
       element: (
         <MainLayout>
           <Product />

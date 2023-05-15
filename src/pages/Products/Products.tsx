@@ -67,7 +67,9 @@ export default function Products() {
   const brandQuery = useQuery({
     queryKey: ['brandName', pathname, id],
     queryFn: () => getBrand(id as string),
-    keepPreviousData: true
+    keepPreviousData: true,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000
   })
 
   const productsQuery = useQuery({
