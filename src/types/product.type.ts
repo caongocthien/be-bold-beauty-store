@@ -1,3 +1,4 @@
+import { Brand } from './brand.type'
 import { Category } from './category.type'
 
 export interface Product {
@@ -23,18 +24,11 @@ export interface Product {
       data: ProductImage[]
     }
     bb_brand: {
-      data: {
-        id: number
-        attributes: {
-          name: string
-          description: null
-          createdAt: string
-          updatedAt: string
-          publishedAt: string
-        }
-      }
+      data: Brand
     }
-    bb_product_category: Category
+    bb_product_category: {
+      data: Category
+    }
   }
 }
 

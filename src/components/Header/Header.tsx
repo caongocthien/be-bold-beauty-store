@@ -8,11 +8,17 @@ import { removeJwtToLocalStorage } from '~/auth/authSlide'
 import { useQuery } from '@tanstack/react-query'
 import { getCategories } from '~/apis/category.api'
 import CONSTANTS from '~/constants/constants'
-import { generateNameId } from '~/utils/utils'
+import { formatCurrency, generateNameId } from '~/utils/utils'
+import { getCarts } from '~/apis/cart.api'
+import { User } from '~/types/user.type'
+import { getCart } from '~/slice/cart/cartSlice'
+import { useEffect } from 'react'
 
 export default function Header() {
   const dispatch = useAppDispatch()
   const auth = useAppSelector((state) => state.auth.isAuthentication)
+  const cart = useAppSelector((state) => state.cart.cart)
+  const user: User = localStorage.getItem('user') && JSON.parse(localStorage.getItem('user') as string)
   const categoriesQuery = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
@@ -24,8 +30,30 @@ export default function Header() {
     dispatch(removeJwtToLocalStorage())
   }
 
+  const getCartQuery = useQuery({
+    queryKey: ['cart'],
+    queryFn: () => getCarts(user.id.toString() || '')
+  })
+  useEffect(() => {
+    dispatch(getCart(getCartQuery.data?.data.data[0].attributes.cart_item))
+  }, [dispatch, getCartQuery.data?.data.data])
+
+  const calculateSumPrice = (): number => {
+    const arrPrice =
+      cart &&
+      cart?.map((item) => {
+        const price = Number(item.bb_product.data.attributes.discountPrice || item.bb_product.data.attributes.price)
+        return price
+      })
+    const price =
+      arrPrice &&
+      arrPrice?.reduce((prev, curr) => {
+        return prev + curr
+      }, 0)
+    return price || 0
+  }
   return (
-    <header className='sticky top-0 z-30 bg-white w-full border-b-[1px] border-[#f7dee6]'>
+    <header className='sticky top-0 z-10 bg-white w-full border-b-[1px] border-[#f7dee6]'>
       <nav className='flex items-center justify-between h-20 '>
         <Link to='/'>
           <img
@@ -70,7 +98,7 @@ export default function Header() {
         </div>
         <div className='flex items-center'>
           <Popover refElement={<FaUserAlt className='text-lg ' />}>
-            <div className='bg-white rounded shadow flex flex-col  py-3 '>
+            <div className='bg-white rounded shadow flex flex-col py-3'>
               {auth ? (
                 <>
                   <Link to={'/profile'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
@@ -98,72 +126,63 @@ export default function Header() {
               )}
             </div>
           </Popover>
-          <div className='font-bold mx-4'>$0.00</div>
-          <Popover
-            refElement={
-              <div className='relative'>
-                <HiShoppingBag className='text-2xl relative' />
-                <span className='absolute top-[-4px] right-[-10px] bg-black text-white rounded-[50%] h-4 w-4 text-xs flex justify-center items-center'>
-                  2
-                </span>
-              </div>
-            }
-          >
-            <div className='bg-white rounded shadow flex flex-col py-3  max-w-md'>
-              <div className='text-gray-500 px-7'>Recently added product </div>
-              <div className='mt-5'>
-                <div className='flex items-center justify-between hover:bg-[#F6EDF0] hover:text-gray-500 px-7 py-3'>
-                  <div className='flex-shrink-0'>
-                    <img
-                      className='h-11 w-11'
-                      src='https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8&w=1000&q=80'
-                      alt='img'
-                    />
+          {auth && (
+            <>
+              <div className='font-bold mx-4'>{formatCurrency(calculateSumPrice())} đ</div>
+              <Popover
+                refElement={
+                  <div className='relative'>
+                    <HiShoppingBag className='text-2xl relative' />
+                    {cart && (
+                      <span className='absolute top-[-4px] right-[-10px] bg-black text-white rounded-[50%] h-4 w-4 text-xs flex justify-center items-center'>
+                        {cart.length}
+                      </span>
+                    )}
                   </div>
-                  <div className='flex-grow ml-2 overflow-hidden'>
-                    <div className='truncate'>
-                      Chuột Máy Tính Không Dây Chuột Gaming Chống Ồn Led Rgb T-WOLF Q13 Wireless Chuột Bluetooth Laptop
-                      Pc Mouse Chơi Game
+                }
+              >
+                <div className='bg-white rounded shadow flex flex-col py-3  max-w-md'>
+                  <div className='text-gray-500 px-7'>Sản phẩm có trong giỏ hàng </div>
+                  {cart && cart?.length > 0 ? (
+                    <div className='mt-5'>
+                      {cart?.map(
+                        (item) =>
+                          item && (
+                            <div
+                              key={item.id}
+                              className='flex items-center justify-between hover:bg-[#F6EDF0] hover:text-gray-500 px-7 py-3'
+                            >
+                              <div className='flex-shrink-0 border'>
+                                <img
+                                  className='h-11 w-11'
+                                  src={item.bb_product.data.attributes.productImage.data[0].attributes.url}
+                                  alt='img'
+                                />
+                              </div>
+                              <div className='flex-grow ml-2 overflow-hidden'>
+                                <div className='truncate'>{item.bb_product.data?.attributes.name}</div>
+                              </div>
+                              <div className='text-gray-600 '>
+                                {formatCurrency(
+                                  Number(
+                                    item.bb_product.data.attributes.discountPrice ||
+                                      item.bb_product.data.attributes.price
+                                  )
+                                )}
+                                <span className='text-gray-900'>đ</span>
+                              </div>
+                            </div>
+                          )
+                      )}
+                      <button className='bg-[#F6EDF0] p-2 float-right mt-3'>Xem giỏ hàng của bạn</button>
                     </div>
-                  </div>
-                  <div className='text-[#f5b1c7] '>₫299.000</div>
+                  ) : (
+                    <div className='py-14 px-5'>Không có sản phẩm trong giỏ hàng.</div>
+                  )}
                 </div>
-                <div className='flex py-3 items-center justify-between hover:bg-[#F6EDF0] hover:text-gray-500 px-7'>
-                  <div className='flex-shrink-0'>
-                    <img
-                      className='h-11 w-11'
-                      src='https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8&w=1000&q=80'
-                      alt='img'
-                    />
-                  </div>
-                  <div className='flex-grow ml-2 overflow-hidden'>
-                    <div className='truncate'>
-                      Chuột Máy Tính Không Dây Chuột Gaming Chống Ồn Led Rgb T-WOLF Q13 Wireless Chuột Bluetooth Laptop
-                      Pc Mouse Chơi Game
-                    </div>
-                  </div>
-                  <div className='text-[#f5b1c7] '>₫299.000</div>
-                </div>
-                <div className='flex py-3 items-center justify-between hover:bg-[#F6EDF0] hover:text-gray-500 px-7'>
-                  <div className='flex-shrink-0'>
-                    <img
-                      className='h-11 w-11'
-                      src='https://images.unsplash.com/photo-1575936123452-b67c3203c357?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8aW1hZ2V8ZW58MHx8MHx8&w=1000&q=80'
-                      alt='img'
-                    />
-                  </div>
-                  <div className='flex-grow ml-2 overflow-hidden'>
-                    <div className='truncate'>
-                      Chuột Máy Tính Không Dây Chuột Gaming Chống Ồn Led Rgb T-WOLF Q13 Wireless Chuột Bluetooth Laptop
-                      Pc Mouse Chơi Game
-                    </div>
-                  </div>
-                  <div className='text-[#f5b1c7] '>₫299.000</div>
-                </div>
-                <button className='bg-[#F6EDF0] p-2 float-right mt-3'>View shopping cart</button>
-              </div>
-            </div>
-          </Popover>
+              </Popover>
+            </>
+          )}
         </div>
       </nav>
     </header>

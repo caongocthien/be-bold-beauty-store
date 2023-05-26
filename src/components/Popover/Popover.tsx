@@ -37,7 +37,7 @@ export default function Popover({ refElement, children }: Props) {
   const { getReferenceProps, getFloatingProps } = useInteractions([hover])
   return (
     <div>
-      <div className='flex ' ref={refs.setReference} {...getReferenceProps()}>
+      <div className='flex' ref={refs.setReference} {...getReferenceProps()}>
         {refElement}
       </div>
       <AnimatePresence>
@@ -48,7 +48,8 @@ export default function Popover({ refElement, children }: Props) {
               style={{
                 position: strategy,
                 top: y ?? 0,
-                left: x ?? 0
+                left: x ?? 0,
+                zIndex: 20
               }}
               {...getFloatingProps()}
               // framer motion

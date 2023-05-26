@@ -30,7 +30,7 @@ export default function Register() {
     const body = omit(data, ['confirm_password'])
     registerUserMutation.mutate(body, {
       onSuccess: (data) => {
-        dispatch(saveJwtToLocalStorage(data.data.jwt))
+        dispatch(saveJwtToLocalStorage(data.data))
         reset()
         toast.success('Register has been successfully!', {
           autoClose: 2000

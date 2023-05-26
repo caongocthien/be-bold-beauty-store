@@ -17,12 +17,25 @@ export const authSlice = createSlice({
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
-    saveJwtToLocalStorage: (state, action: PayloadAction<string>) => {
-      localStorage.setItem('jwt', action.payload)
+    saveJwtToLocalStorage: (
+      state,
+      action: PayloadAction<{
+        jwt: string
+        user: {
+          id: number
+          username: string
+          email: string
+          phone: string
+        }
+      }>
+    ) => {
+      localStorage.setItem('jwt', action.payload.jwt)
+      localStorage.setItem('user', JSON.stringify(action.payload.user))
       state.isAuthentication = true
     },
     removeJwtToLocalStorage: (state) => {
       localStorage.removeItem('jwt')
+      localStorage.removeItem('user')
       state.isAuthentication = false
     }
   }

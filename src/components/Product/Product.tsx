@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
-import { AiOutlineStar } from 'react-icons/ai'
-import { generateNameId } from '~/utils/utils'
+import { formatCurrency, generateNameId } from '~/utils/utils'
 
 interface Props {
   id: number
@@ -15,17 +14,10 @@ export default function Product({ id, imgUrl, name, price, price_discount }: Pro
     <Link to={`/product/${generateNameId({ name: name, id: id })}`}>
       <img className='h-auto w-full' src={imgUrl} alt='' />
       <div className='mt-3'>
-        <div className='flex mt-1 text-sm'>
-          <AiOutlineStar />
-          <AiOutlineStar />
-          <AiOutlineStar />
-          <AiOutlineStar />
-          <AiOutlineStar />
-        </div>
         <div className='mt-1 text-sm truncate'>{name}</div>
         <div className='mt-1 text-sm'>
-          <span className='line-through text-gray-500 font-bold'>d{price}</span>
-          <span className='ml-1 font-bold text-gray-700'>d{price_discount}</span>
+          <span className='line-through text-gray-500 font-bold'>đ{formatCurrency(Number(price))}</span>
+          <span className='ml-1 font-bold text-gray-700'>đ{formatCurrency(Number(price_discount))}</span>
         </div>
       </div>
     </Link>

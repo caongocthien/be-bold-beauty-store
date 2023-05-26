@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
@@ -31,7 +31,7 @@ export default function Login() {
   const onSubmit = handleSubmit((data) => {
     loginMutation.mutate(data, {
       onSuccess: (data) => {
-        dispatch(saveJwtToLocalStorage(data.data.jwt))
+        dispatch(saveJwtToLocalStorage(data.data))
         reset()
         toast.success('Login has been successfully!', {
           autoClose: 2000

@@ -27,3 +27,7 @@ export const convertQueryStringToQueryObj = (qs: string) => {
   const params = new URLSearchParams(qs)
   return Object.fromEntries(params)
 }
+
+export const formatCurrency = (number: number) => {
+  return new Intl.NumberFormat('en-US').format(number)
+}
