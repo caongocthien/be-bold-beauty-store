@@ -4,7 +4,7 @@ import { HiShoppingBag } from 'react-icons/hi'
 import classNames from 'classnames'
 import Popover from '../Popover'
 import { useAppDispatch, useAppSelector } from '~/hooks/hooks'
-import { removeJwtToLocalStorage } from '~/auth/authSlide'
+import { removeJwtToLocalStorage } from '~/slice/auth/authSlide'
 import { useQuery } from '@tanstack/react-query'
 import { getCategories } from '~/apis/category.api'
 import CONSTANTS from '~/constants/constants'
@@ -13,11 +13,13 @@ import { getCarts } from '~/apis/cart.api'
 import { User } from '~/types/user.type'
 import { getCart } from '~/slice/cart/cartSlice'
 import { useEffect } from 'react'
+import { queryClient } from '~/App'
 
 export default function Header() {
   const dispatch = useAppDispatch()
   const auth = useAppSelector((state) => state.auth.isAuthentication)
-  const cart = useAppSelector((state) => state.cart.cart)
+  const cart = useAppSelector((state) => state.cart.cart?.attributes.cart_item)
+
   const user: User = localStorage.getItem('user') && JSON.parse(localStorage.getItem('user') as string)
   const categoriesQuery = useQuery({
     queryKey: ['categories'],
@@ -28,22 +30,24 @@ export default function Header() {
   })
   const handleLogout = () => {
     dispatch(removeJwtToLocalStorage())
+    dispatch(getCart(undefined))
   }
 
   const getCartQuery = useQuery({
     queryKey: ['cart'],
-    queryFn: () => getCarts(user.id.toString() || '')
+    queryFn: () => getCarts(user && user.id.toString())
   })
+
   useEffect(() => {
-    dispatch(getCart(getCartQuery.data?.data.data[0].attributes.cart_item))
-  }, [dispatch, getCartQuery.data?.data.data])
+    !auth ? dispatch(getCart(undefined)) : dispatch(getCart(getCartQuery.data?.data.data[0]))
+  }, [auth, dispatch, getCartQuery.data?.data.data])
 
   const calculateSumPrice = (): number => {
     const arrPrice =
       cart &&
       cart?.map((item) => {
         const price = Number(item.bb_product.data.attributes.discountPrice || item.bb_product.data.attributes.price)
-        return price
+        return price * item.quantity
       })
     const price =
       arrPrice &&
@@ -162,14 +166,15 @@ export default function Header() {
                               <div className='flex-grow ml-2 overflow-hidden'>
                                 <div className='truncate'>{item.bb_product.data?.attributes.name}</div>
                               </div>
-                              <div className='text-gray-600 '>
+                              <div className='px-2 text-gray-600'>x{item.quantity}</div>
+                              <div className='font-bold'>
                                 {formatCurrency(
                                   Number(
                                     item.bb_product.data.attributes.discountPrice ||
                                       item.bb_product.data.attributes.price
-                                  )
+                                  ) * item.quantity
                                 )}
-                                <span className='text-gray-900'>đ</span>
+                                <span>đ</span>
                               </div>
                             </div>
                           )

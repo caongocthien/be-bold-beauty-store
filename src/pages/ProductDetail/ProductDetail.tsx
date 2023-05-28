@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getProductDetail } from '~/apis/product.api'
 import Slider from '~/components/Slider'
-import { formatCurrency, getIdFromNameId } from '~/utils/utils'
+import { formatCurrency, generateNameId, getIdFromNameId } from '~/utils/utils'
 import { useRef, useState } from 'react'
 import { ProductImage } from '~/types/product.type'
 import Product from '~/components/Product'
@@ -14,10 +14,13 @@ import Box from '@mui/material/Box'
 import TabPanel from '~/components/TabPanel'
 import { useAppSelector } from '~/hooks/hooks'
 import { BodyUpdate, updateCart } from '~/apis/cart.api'
+import { queryClient } from '~/App'
 
 export default function ProductDetail() {
   const navigate = useNavigate()
   const auth = useAppSelector((state) => state.auth.isAuthentication)
+  const cart = useAppSelector((state) => state.cart.cart)
+
   const [value, setValue] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [productImageIndex, setProductImageIndex] = useState(0)
@@ -27,9 +30,16 @@ export default function ProductDetail() {
 
   const id = getIdFromNameId(nameId as string)
 
-  // const cartMutate = useMutation({
-  //   mutationFn: (cartId, cartItems) => updateCart(cartId, cartItems)
-  // })
+  const updateCartMutation = useMutation((cart: { cardId: number; body: BodyUpdate[] }) =>
+    updateCart(cart.cardId, cart.body)
+  )
+  const getProductDetailQuery = useQuery({
+    queryKey: ['product', id],
+    queryFn: () => getProductDetail(id as string),
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000
+  })
+  const product = getProductDetailQuery.data?.data.data
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue)
@@ -58,20 +68,37 @@ export default function ProductDetail() {
     imageRef.current?.removeAttribute('style')
   }
 
-  const getProductDetailQuery = useQuery({
-    queryKey: ['product', id],
-    queryFn: () => getProductDetail(id as string),
-    staleTime: 5 * 1000 * 60,
-    cacheTime: 10 * 1000 * 60
-  })
-
-  const product = getProductDetailQuery.data?.data.data
-
   const handleAddToCart = () => {
     if (!auth) {
       navigate('/login')
     } else {
-      console.log(auth)
+      cart &&
+        updateCartMutation.mutate(
+          {
+            cardId: cart.id as number,
+            body: [
+              ...cart.attributes.cart_item.map((item) => ({
+                quantity: product?.id === item.bb_product.data.id ? item.quantity + quantity : item.quantity,
+                bb_product: item.bb_product.data.id
+              }))
+            ].concat(
+              cart.attributes.cart_item.filter((item) => item.bb_product.data.id === product?.id).length === 0
+                ? [
+                    {
+                      quantity: quantity,
+                      bb_product: product?.id as number
+                    }
+                  ]
+                : []
+            )
+          },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: ['cart'] })
+              setQuantity(1)
+            }
+          }
+        )
     }
   }
 
@@ -119,14 +146,27 @@ export default function ProductDetail() {
         </div>
         <div className='col-span-7'>
           <div>
-            <div className='text-gray-400 text-base mb-5'>Home / Hair Care / Product Name 1</div>
+            <div className='text-gray-400 text-base mb-5'>
+              <Link to='/'>Trang chủ</Link> /{' '}
+              <Link
+                to={`/products/brand/${generateNameId({
+                  name: product.attributes.bb_brand.data.attributes.name,
+                  id: product.attributes.bb_brand.data.id
+                })}`}
+              >
+                {product.attributes.bb_brand.data.attributes.name}
+              </Link>{' '}
+              / {product.attributes.name}
+            </div>
             <div className='text-3xl text-gray-800 mb-5'>{product.attributes.name}</div>
             <div className='text-4xl mb-5 font-bold text-gray-700'>
-              <span className='line-through text-gray-500 text-3xl relative'>
-                {product.attributes.discountPrice && formatCurrency(Number(product.attributes.discountPrice))}đ
+              <span className='line-through text-gray-500 text-2xl relative'>
+                {product.attributes.discountPrice && formatCurrency(Number(product.attributes.price))}đ
               </span>
-              <span> {formatCurrency(Number(product.attributes.price))}đ</span>
-              <span className='text-lg font-normal'> & Free Shipping</span>
+              <span className='px-2'>
+                {formatCurrency(Number(product.attributes.discountPrice || product.attributes.price))}đ
+              </span>
+              <span className='text-lg font-normal'> & Miễn phí vận chuyển</span>
             </div>
             <div className='text-lg mb-5 whitespace-pre-wrap'>{product.attributes.shortDescription}</div>
             <div className='flex mb-10'>
@@ -149,7 +189,7 @@ export default function ProductDetail() {
             </div>
 
             <button
-              disabled={quantity > product.attributes.inventory}
+              disabled={quantity > product.attributes.inventory || updateCartMutation.isLoading}
               className={classNames('p-4 bg-pink-300 mb-5', {
                 'bg-gray-400': quantity > product.attributes.inventory
               })}
@@ -223,8 +263,8 @@ export default function ProductDetail() {
                       id={item.id}
                       imgUrl={item.attributes.productImage.data[0].attributes.url}
                       name={item.attributes.name}
-                      price_discount={Number(item.attributes.discountPrice)}
-                      price={Number(item.attributes.price)}
+                      price_discount={Number(item.attributes.price)}
+                      price={Number(item.attributes.discountPrice)}
                     />
                   ))}
               </div>

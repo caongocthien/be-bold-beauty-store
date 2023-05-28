@@ -14,15 +14,14 @@ export const getCarts = (userId: string) =>
     }
   })
 
-export const createCart = (userId: string, cartItems: BodyUpdate[]) =>
+export const createCart = (userId: number) =>
   http.post<AxiosResponse<Cart, Cart>>(`/api/bb-carts`, {
     data: {
-      users_permissions_user: userId,
-      cart_item: cartItems
+      users_permissions_user: userId
     }
   })
 
-export const updateCart = (cartId: string, cartItems: BodyUpdate[]) =>
+export const updateCart = (cartId: number, cartItems: BodyUpdate[]) =>
   http.put(`/api/bb-carts/${cartId}`, {
     data: {
       cart_item: cartItems

@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { queryClient } from '~/App'
 import { formatCurrency, generateNameId } from '~/utils/utils'
 
 interface Props {
@@ -10,6 +12,9 @@ interface Props {
 }
 
 export default function Product({ id, imgUrl, name, price, price_discount }: Props) {
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['product'] })
+  }, [])
   return (
     <Link to={`/product/${generateNameId({ name: name, id: id })}`}>
       <img className='h-auto w-full' src={imgUrl} alt='' />

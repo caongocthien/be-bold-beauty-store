@@ -7,7 +7,9 @@ import { toast } from 'react-toastify'
 import { FormData as Schema, schema } from '~/utils/rule'
 import { register as registerAccount } from '~/apis/auth.api'
 import { useAppDispatch } from '~/hooks/hooks'
-import { saveJwtToLocalStorage } from '~/auth/authSlide'
+import { saveJwtToLocalStorage } from '~/slice/auth/authSlide'
+import { createCart } from '~/apis/cart.api'
+import { getCart } from '~/slice/cart/cartSlice'
 type FormData = Pick<Schema, 'email' | 'password' | 'username' | 'phone' | 'confirm_password'>
 const schemeRegister = schema.pick(['email', 'username', 'phone', 'password', 'confirm_password'])
 
@@ -25,11 +27,13 @@ export default function Register() {
   const registerUserMutation = useMutation({
     mutationFn: (body: Omit<FormData, 'confirm_password'>) => registerAccount(body)
   })
+  const createCartMutation = useMutation(createCart)
 
   const onSubmit = handleSubmit((data) => {
     const body = omit(data, ['confirm_password'])
     registerUserMutation.mutate(body, {
       onSuccess: (data) => {
+        createCartMutation.mutate(data.data.user.id)
         dispatch(saveJwtToLocalStorage(data.data))
         reset()
         toast.success('Register has been successfully!', {
