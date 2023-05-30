@@ -15,6 +15,7 @@ import TabPanel from '~/components/TabPanel'
 import { useAppSelector } from '~/hooks/hooks'
 import { BodyUpdate, updateCart } from '~/apis/cart.api'
 import { queryClient } from '~/App'
+import { toast } from 'react-toastify'
 
 export default function ProductDetail() {
   const navigate = useNavigate()
@@ -96,6 +97,9 @@ export default function ProductDetail() {
             onSuccess: () => {
               queryClient.invalidateQueries({ queryKey: ['cart'] })
               setQuantity(1)
+              toast.success('Thêm vào giỏ hàng thành công.', {
+                autoClose: 1000
+              })
             }
           }
         )

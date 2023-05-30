@@ -10,6 +10,7 @@ import { useAppDispatch } from '~/hooks/hooks'
 import { saveJwtToLocalStorage } from '~/slice/auth/authSlide'
 import { createCart } from '~/apis/cart.api'
 import { getCart } from '~/slice/cart/cartSlice'
+import { queryClient } from '~/App'
 type FormData = Pick<Schema, 'email' | 'password' | 'username' | 'phone' | 'confirm_password'>
 const schemeRegister = schema.pick(['email', 'username', 'phone', 'password', 'confirm_password'])
 
@@ -37,12 +38,12 @@ export default function Register() {
         dispatch(saveJwtToLocalStorage(data.data))
         reset()
         toast.success('Register has been successfully!', {
-          autoClose: 2000
+          autoClose: 1000
         })
       },
       onError: (error: any) => {
         toast.error(error.response.data.error.message, {
-          autoClose: 2000
+          autoClose: 1000
         })
       }
     })

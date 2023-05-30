@@ -8,6 +8,8 @@ import Profile from '../pages/Profile'
 import { useAppSelector } from './hooks'
 import Product from '../pages/ProductDetail'
 import Products from '../pages/Products'
+import Cart from '~/pages/Cart'
+import { Children } from 'react'
 
 export default function useRouteElement() {
   const isAuthentication = useAppSelector((state) => state.auth.isAuthentication)
@@ -84,7 +86,6 @@ export default function useRouteElement() {
       path: '/products/category/:nameId',
       element: (
         <MainLayout>
-          {/* <Category /> */}
           <Products />
         </MainLayout>
       )
@@ -93,10 +94,23 @@ export default function useRouteElement() {
       path: '/products/brand/:nameId',
       element: (
         <MainLayout>
-          {/* <Brand /> */}
           <Products />
         </MainLayout>
       )
+    },
+    {
+      path: '',
+      element: <ProtectedRoute />,
+      children: [
+        {
+          path: '/cart',
+          element: (
+            <MainLayout>
+              <Cart />
+            </MainLayout>
+          )
+        }
+      ]
     }
   ])
 

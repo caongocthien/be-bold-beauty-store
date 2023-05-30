@@ -13,7 +13,6 @@ import { getCarts } from '~/apis/cart.api'
 import { User } from '~/types/user.type'
 import { getCart } from '~/slice/cart/cartSlice'
 import { useEffect } from 'react'
-import { queryClient } from '~/App'
 
 export default function Header() {
   const dispatch = useAppDispatch()
@@ -30,11 +29,10 @@ export default function Header() {
   })
   const handleLogout = () => {
     dispatch(removeJwtToLocalStorage())
-    dispatch(getCart(undefined))
   }
 
   const getCartQuery = useQuery({
-    queryKey: ['cart'],
+    queryKey: ['cart', user && user.id],
     queryFn: () => getCarts(user && user.id.toString())
   })
 
@@ -135,14 +133,14 @@ export default function Header() {
               <div className='font-bold mx-4'>{formatCurrency(calculateSumPrice())} đ</div>
               <Popover
                 refElement={
-                  <div className='relative'>
+                  <Link to={'/cart'} className='relative'>
                     <HiShoppingBag className='text-2xl relative' />
                     {cart && (
                       <span className='absolute top-[-4px] right-[-10px] bg-black text-white rounded-[50%] h-4 w-4 text-xs flex justify-center items-center'>
                         {cart.length}
                       </span>
                     )}
-                  </div>
+                  </Link>
                 }
               >
                 <div className='bg-white rounded shadow flex flex-col py-3  max-w-md'>
@@ -179,10 +177,17 @@ export default function Header() {
                             </div>
                           )
                       )}
-                      <button className='bg-[#F6EDF0] p-2 float-right mt-3'>Xem giỏ hàng của bạn</button>
+                      <Link to={'/cart'} className='bg-[#F6EDF0] p-2 float-right mt-3'>
+                        Xem giỏ hàng của bạn
+                      </Link>
                     </div>
                   ) : (
-                    <div className='py-14 px-5'>Không có sản phẩm trong giỏ hàng.</div>
+                    <div className='py-14 px-5'>
+                      <img
+                        src='https://assets.materialup.com/uploads/16e7d0ed-140b-4f86-9b7e-d9d1c04edb2b/preview.png'
+                        alt='Empty cart'
+                      />
+                    </div>
                   )}
                 </div>
               </Popover>
