@@ -9,7 +9,6 @@ import { product } from '~/constants/utils'
 import { useQuery } from '@tanstack/react-query'
 import { getBrands } from '~/apis/brand.api'
 import Product from '~/components/Product'
-import { getProducts } from '~/apis/product.api'
 import CONSTANTS from '~/constants/constants'
 import { generateNameId } from '~/utils/utils'
 

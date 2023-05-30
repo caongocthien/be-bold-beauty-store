@@ -9,7 +9,6 @@ import { useAppSelector } from './hooks'
 import Product from '../pages/ProductDetail'
 import Products from '../pages/Products'
 import Cart from '~/pages/Cart'
-import { Children } from 'react'
 
 export default function useRouteElement() {
   const isAuthentication = useAppSelector((state) => state.auth.isAuthentication)

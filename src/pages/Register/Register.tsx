@@ -9,8 +9,6 @@ import { register as registerAccount } from '~/apis/auth.api'
 import { useAppDispatch } from '~/hooks/hooks'
 import { saveJwtToLocalStorage } from '~/slice/auth/authSlide'
 import { createCart } from '~/apis/cart.api'
-import { getCart } from '~/slice/cart/cartSlice'
-import { queryClient } from '~/App'
 type FormData = Pick<Schema, 'email' | 'password' | 'username' | 'phone' | 'confirm_password'>
 const schemeRegister = schema.pick(['email', 'username', 'phone', 'password', 'confirm_password'])
 

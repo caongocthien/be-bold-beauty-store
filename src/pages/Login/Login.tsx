@@ -1,7 +1,6 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-
 import { FormData as Schema, schema } from '~/utils/rule'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { login } from '~/apis/auth.api'
