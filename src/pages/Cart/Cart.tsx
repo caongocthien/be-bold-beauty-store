@@ -14,7 +14,7 @@ export default function Cart() {
 
   const cart = useAppSelector((state) => state.cart.cart)
   const cartItems = cart?.attributes.cart_item
-  const [cartData, setCartData] = useState<Cart>(cart as Cart)
+  const [_, setCartData] = useState<Cart>(cart as Cart)
 
   const updateCartMutation = useMutation((cart: { cardId: number; body: BodyUpdate[] }) =>
     updateCart(cart.cardId, cart.body)
