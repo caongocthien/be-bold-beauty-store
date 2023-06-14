@@ -189,7 +189,7 @@ export default function ProductDetail() {
                 onIncrease={handleBuyCount}
                 onType={handleBuyCount}
                 value={buyCount}
-                max={product.attributes.inventory}
+                max={product.attributes.inventory - quantityItemInCart}
               />
               <div className='pl-5 text-gray-500'>
                 {product.attributes.inventory - quantityItemInCart} sản phẩm có sẳn
