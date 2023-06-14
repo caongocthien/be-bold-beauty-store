@@ -16,20 +16,26 @@ import { useAppSelector } from '~/hooks/hooks'
 import { BodyUpdate, updateCart } from '~/apis/cart.api'
 import { queryClient } from '~/App'
 import { toast } from 'react-toastify'
+import QuantityController from '~/components/QuantityController'
 
 export default function ProductDetail() {
   const navigate = useNavigate()
   const auth = useAppSelector((state) => state.auth.isAuthentication)
   const cart = useAppSelector((state) => state.cart.cart)
 
-  const [value, setValue] = useState(0)
-  const [quantity, setQuantity] = useState(1)
+  const [tabs, setTabs] = useState(0)
+
+  const [buyCount, setBuyCount] = useState(1)
+
   const [productImageIndex, setProductImageIndex] = useState(0)
 
   const imageRef = useRef<HTMLImageElement>(null)
   const { nameId } = useParams()
 
   const id = getIdFromNameId(nameId as string)
+
+  const quantityItemInCart =
+    cart?.attributes.cart_item.find((item) => item.bb_product.data.id === Number(id))?.quantity || 0
 
   const updateCartMutation = useMutation((cart: { cardId: number; body: BodyUpdate[] }) =>
     updateCart(cart.cardId, cart.body)
@@ -43,7 +49,7 @@ export default function ProductDetail() {
   const product = getProductDetailQuery.data?.data.data
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue)
+    setTabs(newValue)
   }
 
   const getImageUrl = (slideImage: ProductImage[]) => {
@@ -64,7 +70,6 @@ export default function ProductDetail() {
     image.style.top = top + 'px'
     image.style.left = left + 'px'
   }
-
   const handleRemoveZoom = () => {
     imageRef.current?.removeAttribute('style')
   }
@@ -79,14 +84,14 @@ export default function ProductDetail() {
             cardId: cart.id as number,
             body: [
               ...cart.attributes.cart_item.map((item) => ({
-                quantity: product?.id === item.bb_product.data.id ? item.quantity + quantity : item.quantity,
+                quantity: product?.id === item.bb_product.data.id ? item.quantity + buyCount : item.quantity,
                 bb_product: item.bb_product.data.id
               }))
             ].concat(
               cart.attributes.cart_item.filter((item) => item.bb_product.data.id === product?.id).length === 0
                 ? [
                     {
-                      quantity: quantity,
+                      quantity: buyCount,
                       bb_product: product?.id as number
                     }
                   ]
@@ -96,14 +101,18 @@ export default function ProductDetail() {
           {
             onSuccess: () => {
               queryClient.invalidateQueries({ queryKey: ['cart'] })
-              setQuantity(1)
+              setBuyCount(1)
               toast.success('Thêm vào giỏ hàng thành công.', {
-                autoClose: 1000
+                autoClose: 500
               })
             }
           }
         )
     }
+  }
+
+  const handleBuyCount = (value: number) => {
+    setBuyCount(value)
   }
 
   if (!product) return null
@@ -173,34 +182,26 @@ export default function ProductDetail() {
               <span className='text-lg font-normal'> & Miễn phí vận chuyển</span>
             </div>
             <div className='text-lg mb-5 whitespace-pre-wrap'>{product.attributes.shortDescription}</div>
-            <div className='flex mb-10'>
-              <div className='flex '>
-                <button disabled={quantity <= 1} className='border p-3' onClick={() => setQuantity((prev) => prev - 1)}>
-                  -
-                </button>
-                <input
-                  type='number'
-                  className='outline-none border text-center'
-                  value={quantity}
-                  onChange={(event) =>
-                    Number(event.target.value) < 1 ? setQuantity(1) : setQuantity(Number(event.target.value))
-                  }
-                />
-                <button className='border p-3' onClick={() => setQuantity((prev) => prev + 1)}>
-                  +
-                </button>
+            {/* quantity controller */}
+            <div className=' mb-10 flex items-center'>
+              <QuantityController
+                onDecrease={handleBuyCount}
+                onIncrease={handleBuyCount}
+                onType={handleBuyCount}
+                value={buyCount}
+                max={product.attributes.inventory}
+              />
+              <div className='pl-5 text-gray-500'>
+                {product.attributes.inventory - quantityItemInCart} sản phẩm có sẳn
               </div>
             </div>
-
-            <button
-              disabled={quantity > product.attributes.inventory || updateCartMutation.isLoading}
-              className={classNames('p-4 bg-pink-300 mb-5', {
-                'bg-gray-400': quantity > product.attributes.inventory
-              })}
-              onClick={handleAddToCart}
-            >
-              Thêm vào giỏ hàng
-            </button>
+            {product.attributes.inventory === 0 ? (
+              <div className='p-4 text-xl font-bold'>Sản phẩm tạm hết hàng</div>
+            ) : (
+              <button className={classNames('p-4 bg-pink-300 mb-5')} onClick={handleAddToCart}>
+                Thêm vào giỏ hàng
+              </button>
+            )}
 
             <div className='h-[1px] bg-pink-200 w-full mb-5'></div>
             <div>Category: {product.attributes.bb_product_category.data.attributes.name}</div>
@@ -210,13 +211,13 @@ export default function ProductDetail() {
       <div>
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={value} onChange={handleChange} aria-label='basic tabs example'>
+            <Tabs value={tabs} onChange={handleChange} aria-label='basic tabs example'>
               <Tab label='Thông số kỹ thuật' />
               <Tab label='Thông tin sản phẩm' />
               <Tab label='Sản phẩm liên quan' />
             </Tabs>
           </Box>
-          <TabPanel value={value} index={0}>
+          <TabPanel value={tabs} index={0}>
             <div>
               <div className='flex'>
                 <div className='min-w-[200px]'>Đối tượng sử dụng:</div>
@@ -252,10 +253,10 @@ export default function ProductDetail() {
               </div>
             </div>
           </TabPanel>
-          <TabPanel value={value} index={1}>
+          <TabPanel value={tabs} index={1}>
             <div className='whitespace-pre-wrap'>{product.attributes.description}</div>
           </TabPanel>
-          <TabPanel value={value} index={2}>
+          <TabPanel value={tabs} index={2}>
             <div>
               <div className='grid grid-cols-5 gap-4'>
                 {product.attributes.bb_brand.data.attributes.bb_products.data

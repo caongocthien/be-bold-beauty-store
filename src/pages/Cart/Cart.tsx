@@ -1,13 +1,20 @@
 import { useMutation } from '@tanstack/react-query'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { queryClient } from '~/App'
 import { BodyUpdate, updateCart } from '~/apis/cart.api'
-import { useAppSelector } from '~/hooks/hooks'
+import { useAppDispatch, useAppSelector } from '~/hooks/hooks'
+import { getCart } from '~/slice/cart/cartSlice'
+import { Cart } from '~/types/cart.type'
 import { formatCurrency, generateNameId } from '~/utils/utils'
 
 export default function Cart() {
+  const dispatch = useAppDispatch()
+
   const cart = useAppSelector((state) => state.cart.cart)
   const cartItems = cart?.attributes.cart_item
+  const [cartData, setCartData] = useState<Cart>(cart as Cart)
 
   const updateCartMutation = useMutation((cart: { cardId: number; body: BodyUpdate[] }) =>
     updateCart(cart.cardId, cart.body)
@@ -67,6 +74,79 @@ export default function Cart() {
         }
       )
   }
+  const increaseQuantityCartItem = (id: number) => {
+    dispatch(
+      getCart(
+        cart && {
+          ...cart,
+          attributes: {
+            ...cart?.attributes,
+            cart_item: [
+              ...cart.attributes.cart_item.map((item) => {
+                if (item.bb_product.data.id === id) {
+                  return { ...item, quantity: item.quantity + 1 }
+                }
+                return item
+              })
+            ]
+          }
+        }
+      )
+    )
+  }
+
+  const descreaseQuantityCartItem = (id: number) => {
+    dispatch(
+      getCart(
+        cart && {
+          ...cart,
+          attributes: {
+            ...cart?.attributes,
+            cart_item: [
+              ...cart.attributes.cart_item.map((item) => {
+                if (item.bb_product.data.id === id) {
+                  return { ...item, quantity: item.quantity - 1 }
+                }
+                return item
+              })
+            ]
+          }
+        }
+      )
+    )
+  }
+
+  const handleUpdateCart = (id: number, event: React.FocusEvent<HTMLInputElement, Element>) => {
+    cart &&
+      updateCartMutation.mutate(
+        {
+          cardId: cart.id as number,
+          body: [
+            ...cart.attributes.cart_item.map((item) => {
+              if (item.id === id) {
+                return {
+                  quantity: Number(event.target.value),
+                  bb_product: item.bb_product.data.id
+                }
+              }
+              return {
+                quantity: item.quantity,
+                bb_product: item.bb_product.data.id
+              }
+            })
+          ]
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['cart'] })
+            setCartData(cart)
+            toast.success('Thêm vào giỏ hàng thành công.', {
+              autoClose: 1000
+            })
+          }
+        }
+      )
+  }
 
   return (
     <div className='container m-auto'>
@@ -110,10 +190,34 @@ export default function Cart() {
                         {item.bb_product.data.attributes.name}
                       </Link>
                     </th>
-                    <td className='px-6 py-4'>{item.quantity}</td>
+                    <td className='px-6 py-4'>
+                      <div>
+                        <button
+                          className='border px-3'
+                          disabled={item.quantity <= 1}
+                          onClick={() => descreaseQuantityCartItem(item.bb_product.data.id)}
+                        >
+                          -
+                        </button>
+                        <input
+                          className='border max-w-[40px] text-center outline-none'
+                          type='number'
+                          value={item.quantity}
+                          onBlur={(event) => handleUpdateCart(item.id, event)}
+                          // onChange={(event) => handleUpdateCart(item.id, event)}
+                        />
+                        <button
+                          className='border px-3'
+                          onClick={() => increaseQuantityCartItem(item.bb_product.data.id)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </td>
                     <td className='px-6 py-4'>
                       {formatCurrency(
-                        Number(item.bb_product.data.attributes.discountPrice || item.bb_product.data.attributes.price)
+                        Number(item.bb_product.data.attributes.discountPrice || item.bb_product.data.attributes.price) *
+                          item.quantity
                       )}
                     </td>
                     <td className='px-6 py-4'>
