@@ -9,9 +9,6 @@ export const getProducts = (params?: any) =>
 export const getProductDetail = (id: string) =>
   http.get<AxiosResponse<Product, Product>>(`/api/bb-products/${id}`, {
     params: {
-      'populate[productImage][populate]': '*',
-      'populate[bb_brand][populate]': 'bb_products',
-      'populate[bb_brand][populate][0]': 'bb_products.productImage',
-      'populate[bb_product_category][populate]': '*'
+      populate: 'deep, 4'
     }
   })

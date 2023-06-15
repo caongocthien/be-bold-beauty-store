@@ -6,7 +6,6 @@ export const getBrands = () => http.get<AxiosResponse<Brand[], any>>('/api/bb-br
 export const getBrand = (id: string) =>
   http.get<AxiosResponse<Brand, any>>(`/api/bb-brands/${id}`, {
     params: {
-      'populate[bb_products][populate]': '*',
-      'populate[logo]': '*'
+      populate: 'deep, 4'
     }
   })

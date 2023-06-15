@@ -6,6 +6,6 @@ export const getCategories = () => http.get<AxiosResponse<Category[], any>>('/ap
 export const getCategory = (id: string) =>
   http.get<AxiosResponse<Category, any>>(`/api/bb-product-categories/${id}`, {
     params: {
-      'populate[bb_products][populate][0]': 'productImage'
+      populate: 'deep, 4'
     }
   })

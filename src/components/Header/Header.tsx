@@ -68,7 +68,7 @@ export default function Header() {
           />
         </Link>
         <div className='flex text-base uppercase font-medium items-center h-full'>
-          <NavLink
+          {/* <NavLink
             to={'/products/all-products'}
             end
             className={({ isActive }) =>
@@ -77,10 +77,10 @@ export default function Header() {
                 'border-transparent': !isActive
               })
             }
-            state={{ title: CONSTANTS.allProducts, query: '' }}
+            // state={{ title: CONSTANTS.allProducts, query: '' }}
           >
             {CONSTANTS.allProducts}
-          </NavLink>
+          </NavLink> */}
           {categoriesQuery.data?.data.data &&
             categoriesQuery.data?.data.data.map((item) => (
               <NavLink
