@@ -6,7 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { login } from '~/apis/auth.api'
 import { toast } from 'react-toastify'
 import { useAppDispatch } from '~/hooks/hooks'
-import { saveJwtToLocalStorage } from '~/slice/auth/authSlide'
+import { saveJwtToLocalStorage } from '~/slice/auth/authSlice'
 
 type FormData = Pick<Schema, 'identifier' | 'password'>
 

@@ -7,6 +7,12 @@ interface AuthState {
   isAuthentication: boolean
 }
 
+// const isTokenExpiry = async () => {
+//   // const response = await validateUser(getJwtToLocalStorage())
+//   const getUserCurrentQuery = validateUser(getJwtToLocalStorage())
+//   return getUserCurrentQuery
+// }
+
 // Define the initial state using that type
 const initialState: AuthState = {
   isAuthentication: Boolean(getJwtToLocalStorage())

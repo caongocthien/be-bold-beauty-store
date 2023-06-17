@@ -2,18 +2,16 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import { useMutation } from '@tanstack/react-query'
 import { omit } from 'lodash'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FormData as Schema, schema } from '~/utils/rule'
 import { register as registerAccount } from '~/apis/auth.api'
-import { useAppDispatch } from '~/hooks/hooks'
-import { saveJwtToLocalStorage } from '~/slice/auth/authSlide'
 import { createCart } from '~/apis/cart.api'
 type FormData = Pick<Schema, 'email' | 'password' | 'username' | 'phone' | 'confirm_password'>
 const schemeRegister = schema.pick(['email', 'username', 'phone', 'password', 'confirm_password'])
 
 export default function Register() {
-  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -33,7 +31,8 @@ export default function Register() {
     registerUserMutation.mutate(body, {
       onSuccess: (data) => {
         createCartMutation.mutate(data.data.user.id)
-        dispatch(saveJwtToLocalStorage(data.data))
+        // dispatch(saveJwtToLocalStorage(data.data))
+        navigate('/login')
         reset()
         toast.success('Register has been successfully!', {
           autoClose: 1000

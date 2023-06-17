@@ -5,6 +5,7 @@ interface Props extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLIn
   onIncrease?: (value: number) => void
   onDecrease?: (value: number) => void
   onType?: (value: number) => void
+  onFocusOut?: (value: number) => void
   classNameWrapper?: string
 }
 
@@ -13,12 +14,13 @@ export default function QuantityController({
   onIncrease,
   onDecrease,
   onType,
+  onFocusOut,
   classNameWrapper,
   value,
   ...rest
 }: Props) {
   const [localValue, setLocalValue] = useState<number>(Number(value) || 0)
-  const handleChanhe = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let _value = Number(event.target.value)
     if (max !== undefined && _value > max) {
       _value = max
@@ -46,6 +48,9 @@ export default function QuantityController({
     onDecrease && onDecrease(_value)
     setLocalValue(_value)
   }
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement, Element>) => {
+    onFocusOut && onFocusOut(Number(event.target.value))
+  }
   return (
     <div className={'flex items-center ' + classNameWrapper}>
       <div className='flex '>
@@ -55,8 +60,9 @@ export default function QuantityController({
         <input
           type='number'
           className='outline-none border text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
-          onChange={handleChanhe}
+          onChange={handleChange}
           value={value || localValue}
+          onBlur={handleBlur}
           {...rest}
         />
         <button className='border p-3' onClick={increase}>

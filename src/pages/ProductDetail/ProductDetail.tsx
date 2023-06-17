@@ -24,9 +24,7 @@ export default function ProductDetail() {
   const cart = useAppSelector((state) => state.cart.cart)
 
   const [tabs, setTabs] = useState(0)
-
   const [buyCount, setBuyCount] = useState(1)
-
   const [productImageIndex, setProductImageIndex] = useState(0)
 
   const imageRef = useRef<HTMLImageElement>(null)

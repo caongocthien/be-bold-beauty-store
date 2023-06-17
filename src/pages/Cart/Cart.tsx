@@ -1,20 +1,30 @@
 import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { produce } from 'immer'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { toast } from 'react-toastify'
 import { queryClient } from '~/App'
 import { BodyUpdate, updateCart } from '~/apis/cart.api'
-import { useAppDispatch, useAppSelector } from '~/hooks/hooks'
-import { getCart } from '~/slice/cart/cartSlice'
-import { Cart } from '~/types/cart.type'
+import QuantityController from '~/components/QuantityController'
+import { useAppSelector } from '~/hooks/hooks'
+import { Cart, CartItem } from '~/types/cart.type'
 import { formatCurrency, generateNameId } from '~/utils/utils'
 
-export default function Cart() {
-  const dispatch = useAppDispatch()
+interface ExtendedCart extends CartItem {
+  disabled: boolean
+}
 
+export default function Cart() {
   const cart = useAppSelector((state) => state.cart.cart)
   const cartItems = cart?.attributes.cart_item
-  const [_, setCartData] = useState<Cart>(cart as Cart)
+  const [extendedCarts, setExtendedCarts] = useState<ExtendedCart[]>([])
+  useEffect(() => {
+    setExtendedCarts(
+      cartItems?.map((cartItem) => ({
+        ...cartItem,
+        disabled: false
+      })) || []
+    )
+  }, [cartItems])
 
   const updateCartMutation = useMutation((cart: { cardId: number; body: BodyUpdate[] }) =>
     updateCart(cart.cardId, cart.body)
@@ -74,78 +84,47 @@ export default function Cart() {
         }
       )
   }
-  const increaseQuantityCartItem = (id: number) => {
-    dispatch(
-      getCart(
-        cart && {
-          ...cart,
-          attributes: {
-            ...cart?.attributes,
-            cart_item: [
-              ...cart.attributes.cart_item.map((item) => {
-                if (item.bb_product.data.id === id) {
-                  return { ...item, quantity: item.quantity + 1 }
-                }
-                return item
-              })
-            ]
-          }
-        }
-      )
+  const handleTypeQuantity = (cartItemIndex: number) => (value: number) => {
+    setExtendedCarts(
+      produce((draft) => {
+        draft[cartItemIndex].quantity = value
+      })
     )
   }
-
-  const descreaseQuantityCartItem = (id: number) => {
-    dispatch(
-      getCart(
-        cart && {
-          ...cart,
-          attributes: {
-            ...cart?.attributes,
-            cart_item: [
-              ...cart.attributes.cart_item.map((item) => {
-                if (item.bb_product.data.id === id) {
-                  return { ...item, quantity: item.quantity - 1 }
-                }
-                return item
-              })
-            ]
-          }
-        }
+  const handleQuantity = (cartItemIndex: number, value: number, enable: boolean) => {
+    if (enable) {
+      const cartItem = extendedCarts[cartItemIndex]
+      setExtendedCarts(
+        produce((draft) => {
+          draft[cartItemIndex].disabled = true
+        })
       )
-    )
-  }
-
-  const handleUpdateCart = (id: number, event: React.FocusEvent<HTMLInputElement, Element>) => {
-    cart &&
-      updateCartMutation.mutate(
-        {
-          cardId: cart.id as number,
-          body: [
-            ...cart.attributes.cart_item.map((item) => {
-              if (item.id === id) {
+      cart &&
+        updateCartMutation.mutate(
+          {
+            cardId: cart?.id as number,
+            body: [
+              ...extendedCarts.map((item) => {
+                if (item.id === cartItem.id) {
+                  return {
+                    quantity: Number(value),
+                    bb_product: item.bb_product.data.id
+                  }
+                }
                 return {
-                  quantity: Number(event.target.value),
+                  quantity: item.quantity,
                   bb_product: item.bb_product.data.id
                 }
-              }
-              return {
-                quantity: item.quantity,
-                bb_product: item.bb_product.data.id
-              }
-            })
-          ]
-        },
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['cart'] })
-            setCartData(cart)
-            toast.success('Thêm vào giỏ hàng thành công.', {
-              autoClose: 1000
-            })
+              })
+            ]
+          },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries({ queryKey: ['cart'] })
+            }
           }
-        }
-      )
+        )
+    }
   }
 
   return (
@@ -172,7 +151,7 @@ export default function Cart() {
                 </tr>
               </thead>
               <tbody className='text-center'>
-                {cartItems?.map((item) => (
+                {extendedCarts?.map((item, index) => (
                   <tr key={item.id} className='text-base bg-white border-b-2'>
                     <th scope='row' className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap '>
                       <Link
@@ -190,29 +169,21 @@ export default function Cart() {
                         {item.bb_product.data.attributes.name}
                       </Link>
                     </th>
-                    <td className='px-6 py-4'>
-                      <div>
-                        <button
-                          className='border px-3'
-                          disabled={item.quantity <= 1}
-                          onClick={() => descreaseQuantityCartItem(item.bb_product.data.id)}
-                        >
-                          -
-                        </button>
-                        <input
-                          className='border max-w-[40px] text-center outline-none'
-                          type='number'
-                          value={item.quantity}
-                          onBlur={(event) => handleUpdateCart(item.id, event)}
-                          // onChange={(event) => handleUpdateCart(item.id, event)}
-                        />
-                        <button
-                          className='border px-3'
-                          onClick={() => increaseQuantityCartItem(item.bb_product.data.id)}
-                        >
-                          +
-                        </button>
-                      </div>
+                    <td className='px-6 py-4 flex justify-center'>
+                      <QuantityController
+                        // disabled={updateCartMutation.isLoading}
+                        max={item.bb_product.data.attributes.inventory}
+                        value={item.quantity}
+                        onIncrease={(value) =>
+                          handleQuantity(index, value, value < item.bb_product.data.attributes.inventory)
+                        }
+                        onDecrease={(value) => handleQuantity(index, value, value >= 1)}
+                        onType={handleTypeQuantity(index)}
+                        onFocusOut={(value) =>
+                          handleQuantity(index, value, value !== (cartItems as CartItem[])[index].quantity)
+                        }
+                        disabled={item.disabled}
+                      />
                     </td>
                     <td className='px-6 py-4'>
                       {formatCurrency(
