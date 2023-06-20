@@ -1,4 +1,5 @@
 import { Auth } from '~/types/auth.type'
+import { User } from '~/types/user.type'
 import http from '~/utils/http'
 
 const token =
@@ -25,3 +26,6 @@ export const validateUser = (userToken: string | null) =>
   http.get('/api/users/me', {
     headers: { Authorization: `Bearer ${userToken}` }
   })
+
+export const updateUser = (body: Pick<User, 'phone' | 'address'>, id: number) =>
+  http.put(`/api/users/${id}`, body, config)

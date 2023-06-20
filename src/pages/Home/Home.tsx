@@ -21,14 +21,6 @@ export default function Home() {
     cacheTime: 10 * 60 * 1000
   })
 
-  // const productsQuery = useQuery({
-  //   queryKey: ['products'],
-  //   queryFn: () => getProducts(),
-  //   keepPreviousData: true,
-  //   staleTime: 5 * 60 * 1000,
-  //   cacheTime: 10 * 60 * 1000
-  // })
-
   return (
     <div className='w-full'>
       {/* banner 1 */}

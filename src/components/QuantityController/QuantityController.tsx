@@ -7,6 +7,7 @@ interface Props extends React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLIn
   onType?: (value: number) => void
   onFocusOut?: (value: number) => void
   classNameWrapper?: string
+  disableComponent?: boolean
 }
 
 export default function QuantityController({
@@ -17,6 +18,7 @@ export default function QuantityController({
   onFocusOut,
   classNameWrapper,
   value,
+  disableComponent,
   ...rest
 }: Props) {
   const [localValue, setLocalValue] = useState<number>(Number(value) || 0)
@@ -54,7 +56,7 @@ export default function QuantityController({
   return (
     <div className={'flex items-center ' + classNameWrapper}>
       <div className='flex '>
-        <button className='border p-3' onClick={decrease}>
+        <button className='border p-3' onClick={decrease} disabled={disableComponent}>
           -
         </button>
         <input
@@ -65,7 +67,7 @@ export default function QuantityController({
           onBlur={handleBlur}
           {...rest}
         />
-        <button className='border p-3' onClick={increase}>
+        <button className='border p-3' onClick={increase} disabled={disableComponent}>
           +
         </button>
       </div>

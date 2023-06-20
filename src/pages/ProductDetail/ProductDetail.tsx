@@ -8,10 +8,9 @@ import { ProductImage } from '~/types/product.type'
 import Product from '~/components/Product'
 import { Navigation } from 'swiper'
 import classNames from 'classnames'
-import Tabs from '@mui/material/Tabs'
-import Tab from '@mui/material/Tab'
-import Box from '@mui/material/Box'
-import TabPanel from '~/components/TabPanel'
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
+import 'react-tabs/style/react-tabs.css'
+
 import { useAppSelector } from '~/hooks/hooks'
 import { BodyUpdate, updateCart } from '~/apis/cart.api'
 import { queryClient } from '~/App'
@@ -23,7 +22,6 @@ export default function ProductDetail() {
   const auth = useAppSelector((state) => state.auth.isAuthentication)
   const cart = useAppSelector((state) => state.cart.cart)
 
-  const [tabs, setTabs] = useState(0)
   const [buyCount, setBuyCount] = useState(1)
   const [productImageIndex, setProductImageIndex] = useState(0)
 
@@ -38,6 +36,7 @@ export default function ProductDetail() {
   const updateCartMutation = useMutation((cart: { cardId: number; body: BodyUpdate[] }) =>
     updateCart(cart.cardId, cart.body)
   )
+
   const getProductDetailQuery = useQuery({
     queryKey: ['product', id],
     queryFn: () => getProductDetail(id as string),
@@ -45,10 +44,6 @@ export default function ProductDetail() {
     cacheTime: 10 * 60 * 1000
   })
   const product = getProductDetailQuery.data?.data.data
-
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabs(newValue)
-  }
 
   const getImageUrl = (slideImage: ProductImage[]) => {
     const imageItem = slideImage.filter((_, index) => index === productImageIndex)
@@ -196,7 +191,11 @@ export default function ProductDetail() {
             {product.attributes.inventory === 0 ? (
               <div className='p-4 text-xl font-bold'>Sản phẩm tạm hết hàng</div>
             ) : (
-              <button className={classNames('p-4 bg-pink-300 mb-5')} onClick={handleAddToCart}>
+              <button
+                disabled={updateCartMutation.isLoading}
+                className={classNames('p-4 bg-pink-300 mb-5')}
+                onClick={handleAddToCart}
+              >
                 Thêm vào giỏ hàng
               </button>
             )}
@@ -206,75 +205,71 @@ export default function ProductDetail() {
           </div>
         </div>
       </div>
-      <div>
-        <Box sx={{ width: '100%' }}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={tabs} onChange={handleChange} aria-label='basic tabs example'>
-              <Tab label='Thông số kỹ thuật' />
-              <Tab label='Thông tin sản phẩm' />
-              <Tab label='Sản phẩm liên quan' />
-            </Tabs>
-          </Box>
-          <TabPanel value={tabs} index={0}>
-            <div>
-              <div className='flex'>
-                <div className='min-w-[200px]'>Đối tượng sử dụng:</div>
-                <div>{product.attributes.bb_product_category.data.attributes.name}</div>
-              </div>
-              <div className='flex'>
-                <div className='min-w-[200px]'>Đường kính mặt:</div>
-                <div>{product.attributes.face_diameter} mm</div>
-              </div>
-              <div className='flex'>
-                <div className='min-w-[200px]'>Chất liệu mặt kính:</div>
-                <div>{product.attributes.glass_material}</div>
-              </div>
-              <div className='flex'>
-                <div className='min-w-[200px]'>Chất liệu dây:</div>
-                <div>{product.attributes.wire_material}</div>
-              </div>
-              <div className='flex'>
-                <div className='min-w-[200px]'>Bộ máy:</div>
-                <div>{product.attributes.mechanism}</div>
-              </div>
-              <div className='flex'>
-                <div className='min-w-[200px]'>Chống nước:</div>
-                <div>{product.attributes.water_resistance}</div>
-              </div>
-              <div className='flex'>
-                <div className='min-w-[200px]'>Thương hiệu:</div>
-                <div>{product.attributes.trademark}</div>
-              </div>
-              <div className='flex'>
-                <div className='min-w-[200px]'>Hãng:</div>
-                <div>{product.attributes.bb_brand.data.attributes.name}</div>
-              </div>
+      <Tabs>
+        <TabList>
+          <Tab>Thông số kỹ thuật</Tab>
+          <Tab>Thông tin sản phẩm</Tab>
+          <Tab>Sản phẩm liên quan</Tab>
+        </TabList>
+        <TabPanel>
+          <div>
+            <div className='flex'>
+              <div className='min-w-[200px]'>Đối tượng sử dụng:</div>
+              <div>{product.attributes.bb_product_category.data.attributes.name}</div>
             </div>
-          </TabPanel>
-          <TabPanel value={tabs} index={1}>
-            <div className='whitespace-pre-wrap'>{product.attributes.description}</div>
-          </TabPanel>
-          <TabPanel value={tabs} index={2}>
-            <div>
-              <div className='grid grid-cols-5 gap-4'>
-                {product.attributes.bb_brand.data.attributes.bb_products.data
-                  .filter((item) => item.id !== product.id)
-                  .slice(0, 5)
-                  .map((item) => (
-                    <Product
-                      key={item.id}
-                      id={item.id}
-                      imgUrl={item.attributes.productImage.data[0].attributes.url}
-                      name={item.attributes.name}
-                      price_discount={Number(item.attributes.price)}
-                      price={Number(item.attributes.discountPrice)}
-                    />
-                  ))}
-              </div>
+            <div className='flex'>
+              <div className='min-w-[200px]'>Đường kính mặt:</div>
+              <div>{product.attributes.face_diameter} mm</div>
             </div>
-          </TabPanel>
-        </Box>
-      </div>
+            <div className='flex'>
+              <div className='min-w-[200px]'>Chất liệu mặt kính:</div>
+              <div>{product.attributes.glass_material}</div>
+            </div>
+            <div className='flex'>
+              <div className='min-w-[200px]'>Chất liệu dây:</div>
+              <div>{product.attributes.wire_material}</div>
+            </div>
+            <div className='flex'>
+              <div className='min-w-[200px]'>Bộ máy:</div>
+              <div>{product.attributes.mechanism}</div>
+            </div>
+            <div className='flex'>
+              <div className='min-w-[200px]'>Chống nước:</div>
+              <div>{product.attributes.water_resistance}</div>
+            </div>
+            <div className='flex'>
+              <div className='min-w-[200px]'>Thương hiệu:</div>
+              <div>{product.attributes.trademark}</div>
+            </div>
+            <div className='flex'>
+              <div className='min-w-[200px]'>Hãng:</div>
+              <div>{product.attributes.bb_brand.data.attributes.name}</div>
+            </div>
+          </div>
+        </TabPanel>
+        <TabPanel>
+          <div className='whitespace-pre-wrap'>{product.attributes.description}</div>
+        </TabPanel>
+        <TabPanel>
+          <div>
+            <div className='grid grid-cols-5 gap-4'>
+              {product.attributes.bb_brand.data.attributes.bb_products.data
+                .filter((item) => item.id !== product.id)
+                .slice(0, 5)
+                .map((item) => (
+                  <Product
+                    key={item.id}
+                    id={item.id}
+                    imgUrl={item.attributes.productImage.data[0].attributes.url}
+                    name={item.attributes.name}
+                    price_discount={Number(item.attributes.price)}
+                    price={Number(item.attributes.discountPrice)}
+                  />
+                ))}
+            </div>
+          </div>
+        </TabPanel>
+      </Tabs>
     </div>
   )
 }

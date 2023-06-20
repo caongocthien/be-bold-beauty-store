@@ -171,7 +171,7 @@ export default function Cart() {
                     </th>
                     <td className='px-6 py-4 flex justify-center'>
                       <QuantityController
-                        // disabled={updateCartMutation.isLoading}
+                        disableComponent={item.disabled}
                         max={item.bb_product.data.attributes.inventory}
                         value={item.quantity}
                         onIncrease={(value) =>
