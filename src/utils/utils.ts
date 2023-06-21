@@ -1,5 +1,3 @@
-import { User } from '~/types/user.type'
-
 export const saveJwtToLocalStorage = (jwt: string) => {
   return localStorage.setItem('jwt', jwt)
 }

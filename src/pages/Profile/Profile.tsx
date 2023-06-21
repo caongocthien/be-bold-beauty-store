@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { updateUser } from '~/apis/auth.api'
@@ -19,12 +19,7 @@ export default function Profile() {
   const user: User = JSON.parse(getUserToLocalStorage() || '')
   const userAddress = user.address && user.address.split('-')
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<FormData>()
+  const { register, control, handleSubmit } = useForm<FormData>()
 
   const updateUserMutation = useMutation({
     mutationFn: (user: { body: Pick<User, 'phone' | 'address'>; id: number }) => updateUser(user.body, user.id)
