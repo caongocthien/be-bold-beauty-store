@@ -208,12 +208,13 @@ export default function Cart() {
               </tfoot>
             </table>
             <div>
-              <button
-                disabled={updateCartMutation.isLoading}
+              <Link
+                to={'/checkout'}
+                // disabled={updateCartMutation.isLoading}
                 className='float-right bg-pink-200 px-10 py-3 rounded-md shadow-sm'
               >
                 Thanh toán
-              </button>
+              </Link>
             </div>
           </div>
         ) : (

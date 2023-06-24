@@ -68,19 +68,6 @@ export default function Header() {
           />
         </Link>
         <div className='flex text-base uppercase font-medium items-center h-full'>
-          {/* <NavLink
-            to={'/products/all-products'}
-            end
-            className={({ isActive }) =>
-              classNames('px-3 h-full flex items-center border-t-[1px] hover:text-[#f09db8]', {
-                'font-bold  border-[#f09db8] text-[#f09db8]': isActive,
-                'border-transparent': !isActive
-              })
-            }
-            // state={{ title: CONSTANTS.allProducts, query: '' }}
-          >
-            {CONSTANTS.allProducts}
-          </NavLink> */}
           {categoriesQuery.data?.data.data &&
             categoriesQuery.data?.data.data.map((item) => (
               <NavLink

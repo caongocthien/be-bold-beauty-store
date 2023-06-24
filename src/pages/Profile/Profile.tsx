@@ -1,10 +1,8 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import { useLayoutEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
+import { useMutation } from '@tanstack/react-query'
+import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { updateUser } from '~/apis/auth.api'
-import { getProvinces } from '~/apis/provinces.api'
-import { Districts, Provinces, Ward } from '~/types/provinces.type'
+import Address from '~/components/Address'
 import { User } from '~/types/user.type'
 import { getUserToLocalStorage, setUserToLocalStorage } from '~/utils/utils'
 
@@ -17,7 +15,6 @@ type FormData = {
 
 export default function Profile() {
   const user: User = JSON.parse(getUserToLocalStorage() || '')
-  const userAddress = user.address && user.address.split('-')
 
   const { register, control, handleSubmit } = useForm<FormData>()
 
@@ -25,45 +22,45 @@ export default function Profile() {
     mutationFn: (user: { body: Pick<User, 'phone' | 'address'>; id: number }) => updateUser(user.body, user.id)
   })
 
-  const getProvincesQuery = useQuery({
-    queryKey: ['provinces'],
-    queryFn: getProvinces
-  })
+  // const getProvincesQuery = useQuery({
+  //   queryKey: ['provinces'],
+  //   queryFn: getProvinces
+  // })
 
-  const [provinces, setProvinces] = useState<Provinces[]>([])
-  const [districts, setDistricts] = useState<Districts[]>([])
-  const [wards, setWards] = useState<Ward[]>([])
+  // const [provinces, setProvinces] = useState<Provinces[]>([])
+  // const [districts, setDistricts] = useState<Districts[]>([])
+  // const [wards, setWards] = useState<Ward[]>([])
 
-  useLayoutEffect(() => {
-    setProvinces(getProvincesQuery.data?.data)
-  }, [getProvincesQuery.data?.data])
+  // useLayoutEffect(() => {
+  //   setProvinces(getProvincesQuery.data?.data)
+  // }, [getProvincesQuery.data?.data])
 
-  useLayoutEffect(() => {
-    setDistricts(getProvincesQuery.data?.data.find((item: Provinces) => item.code === Number(userAddress[0])).districts)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProvincesQuery.data?.data])
+  // useLayoutEffect(() => {
+  //   setDistricts(getProvincesQuery.data?.data.find((item: Provinces) => item.code === Number(userAddress[0])).districts)
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [getProvincesQuery.data?.data])
 
-  useLayoutEffect(() => {
-    setWards(
-      getProvincesQuery.data?.data
-        .find((item: Provinces) => item.code === Number(userAddress[0]))
-        .districts.find((item: Districts) => item.code === Number(userAddress[1])).wards
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProvincesQuery.data?.data])
+  // useLayoutEffect(() => {
+  //   setWards(
+  //     getProvincesQuery.data?.data
+  //       .find((item: Provinces) => item.code === Number(userAddress[0]))
+  //       .districts.find((item: Districts) => item.code === Number(userAddress[1])).wards
+  //   )
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [getProvincesQuery.data?.data])
 
-  function handleChangeProvinces(event: React.ChangeEvent<HTMLSelectElement>) {
-    const provinceCurrent = Number(event.target.value)
-    const province = provinces.find((item) => item.code === provinceCurrent)
-    setDistricts(province?.districts as Districts[])
-    setWards([])
-  }
+  // function handleChangeProvinces(event: React.ChangeEvent<HTMLSelectElement>) {
+  //   const provinceCurrent = Number(event.target.value)
+  //   const province = provinces.find((item) => item.code === provinceCurrent)
+  //   setDistricts(province?.districts as Districts[])
+  //   setWards([])
+  // }
 
-  const handleChangeDistrict = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const districtCurrent = Number(event.target.value)
-    const district = districts.find((item) => item.code === districtCurrent)
-    setWards(district?.wards as Ward[])
-  }
+  // const handleChangeDistrict = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const districtCurrent = Number(event.target.value)
+  //   const district = districts.find((item) => item.code === districtCurrent)
+  //   setWards(district?.wards as Ward[])
+  // }
 
   const onSubmit = handleSubmit((data) => {
     const address = `${data.provinces}-${data.district}-${data.ward}`
@@ -97,6 +94,7 @@ export default function Profile() {
           <p className='min-w-[5rem]'>Phone:</p>
           <input className='ml-4 p-1' defaultValue={user.phone} {...register('phone')} />
         </div>
+        {/* 
         <div className='flex text-xl py-3 items-center'>
           <p className='min-w-[5rem]'>Tỉnh:</p>
           <Controller
@@ -179,8 +177,8 @@ export default function Profile() {
               </select>
             )}
           />
-        </div>
-
+        </div> */}
+        <Address control={control} />
         <button type='submit' className='float-left bg-blue-500 p-2 shadow-sm rounded'>
           Update
         </button>

@@ -9,6 +9,7 @@ import { useAppSelector } from './hooks'
 import Product from '../pages/ProductDetail'
 import Products from '../pages/Products'
 import Cart from '~/pages/Cart'
+import Checkout from '~/pages/Checkout'
 
 export default function useRouteElement() {
   const isAuthentication = useAppSelector((state) => state.auth.isAuthentication)
@@ -106,6 +107,20 @@ export default function useRouteElement() {
           element: (
             <MainLayout>
               <Cart />
+            </MainLayout>
+          )
+        }
+      ]
+    },
+    {
+      path: '',
+      element: <ProtectedRoute />,
+      children: [
+        {
+          path: '/checkout',
+          element: (
+            <MainLayout>
+              <Checkout />
             </MainLayout>
           )
         }
