@@ -1,9 +1,22 @@
+import { useMutation } from '@tanstack/react-query'
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { createOrder } from '~/apis/order.api'
 import Address from '~/components/Address'
-import { useAppDispatch, useAppSelector } from '~/hooks/hooks'
+import { useAppSelector } from '~/hooks/hooks'
+import { OrderBody } from '~/types/order.type'
 import { User } from '~/types/user.type'
 import { formatCurrency, getUserToLocalStorage } from '~/utils/utils'
+
+type FormData = {
+  userName: string
+  phone: string
+  additionalInfo: string
+  provinces: string
+  district: string
+  ward: string
+  detailAddress: string
+}
 
 export default function Checkout() {
   const cart = useAppSelector((state) => state.cart.cart)
@@ -23,21 +36,49 @@ export default function Checkout() {
       }, 0)
     return price || 0
   }, [cart, cartItems])
-  const [payment, setPayment] = useState(true)
+  const [paymentMethod, setPaymentMethod] = useState(true)
   const [totalPrice, setTotalPrice] = useState<number>(0)
-  const { register, control, handleSubmit } = useForm()
+  const { register, control, handleSubmit } = useForm<FormData>()
   const user: User = JSON.parse(getUserToLocalStorage() || '')
+
+  const createOrderMutation = useMutation({
+    mutationFn: (data: { body: OrderBody; userId: number }) => createOrder(data.body, data.userId)
+  })
 
   useEffect(() => {
     setTotalPrice(calculateSumPrice)
   }, [calculateSumPrice])
 
-  const handlePayment = () => {
-    setPayment(!payment)
+  const handlePaymentMethod = () => {
+    setPaymentMethod(!paymentMethod)
   }
+  const onSubmit = handleSubmit((data: FormData) => {
+    createOrderMutation.mutate({
+      body: {
+        userName: data.userName,
+        phone: data.phone,
+        address: `${data.provinces}-${data.district}-${data.ward}-${data.detailAddress}`,
+        additionalInfo: data.additionalInfo,
+        payment: paymentMethod ? 'cash' : 'bank',
+        isPayment: paymentMethod === true ? false : true,
+        subTotal: calculateSumPrice(),
+        total: totalPrice,
+        Products: cartItems?.map((item) => ({
+          productName: item.bb_product.data.attributes.name,
+          quantity: item.quantity,
+          priceOnProduct:
+            Number(item.bb_product.data.attributes.discountPrice) || Number(item.bb_product.data.attributes.price),
+          sumPrice:
+            (Number(item.bb_product.data.attributes.discountPrice) || Number(item.bb_product.data.attributes.price)) *
+            item.quantity
+        }))
+      },
+      userId: user.id
+    })
+  })
   return (
     <div className='bg-[#F8F6F8] flex flex-col'>
-      <form action=''>
+      <form onSubmit={onSubmit}>
         <div className='bg-white my-20 mx-60 border-gray-300 border rounded-xl'>
           <div className='grid grid-cols-12 p-10'>
             {/* infor */}
@@ -48,6 +89,7 @@ export default function Checkout() {
                   className='border w-full outline-none rounded-sm p-3'
                   type='email'
                   placeholder='Email'
+                  disabled
                   defaultValue={user.email}
                 />
               </div>
@@ -59,51 +101,59 @@ export default function Checkout() {
                     type='text'
                     placeholder='Tên'
                     defaultValue={user.username}
+                    {...register('userName')}
                   />
                   <input
                     className='border outline-none rounded-sm p-3 flex-1'
                     type='text'
                     placeholder='Số điện thoại'
                     defaultValue={user.phone}
+                    {...register('phone')}
                   />
                 </div>
-                <Address control={control} />
-                <input
-                  className='border w-full outline-none rounded-sm p-3'
-                  type='text'
-                  placeholder='Địa chỉ chi tiết'
-                />
+                <Address control={control} defaultValue={user.address} />
               </div>
               <div>
                 <p className='font-bold text-xl mt-6 mb-5'>Ghi chú</p>
-                <textarea className='border w-full outline-none rounded-sm p-3' placeholder='Ghi chú' />
+                <textarea
+                  className='border w-full outline-none rounded-sm p-3'
+                  placeholder='Ghi chú'
+                  {...register('additionalInfo')}
+                />
               </div>
 
               <div>
                 <p className='font-bold text-xl mt-6 mb-5'>Phương thức thanh toán</p>
                 <div className='border'>
                   <div className='flex items-center p-3 border-b bg-[#F8F6F8]'>
-                    <input defaultChecked type='radio' id='bank' name='payment' value={0} onChange={handlePayment} />
+                    <input
+                      defaultChecked
+                      type='radio'
+                      id='bank'
+                      name='paymentMethod'
+                      value={0}
+                      onChange={handlePaymentMethod}
+                    />
                     <label htmlFor='bank' className='ml-2 text-sm font-medium text-gray-900 '>
                       Thanh toán khi nhận hàng
                     </label>
                   </div>
-                  {payment && (
+                  {paymentMethod && (
                     <div className='p-5 border-b'>
                       Make your payment directly into our bank account. Please use your Order ID as the payment
                       reference. Your order will not be shipped until the funds have cleared in our account.
                     </div>
                   )}
                   <div className='flex items-center border-b p-3 bg-[#F8F6F8]'>
-                    <input type='radio' id='cash' name='payment' value={1} onChange={handlePayment} />
+                    <input type='radio' id='cash' name='paymentMethod' value={1} onChange={handlePaymentMethod} />
                     <label htmlFor='cash' className='ml-2 text-sm font-medium text-gray-900'>
                       Thanh toán qua ngân hàng
                     </label>
                   </div>
-                  {!payment && <div className='p-5'>Pay with cash upon delivery.</div>}
+                  {!paymentMethod && <div className='p-5'>Pay with cash upon delivery.</div>}
                 </div>
               </div>
-              <button className='w-full rounded-sm p-3 bg-slate-400 my-5 text-white font-bold'>
+              <button type='submit' className='w-full rounded-sm p-3 bg-slate-400 my-5 text-white font-bold'>
                 Xác nhận thanh toán
               </button>
             </div>
@@ -150,7 +200,7 @@ export default function Checkout() {
                   <div>{formatCurrency(totalPrice)}</div>
                 </div>
               </div>
-              <div className='flex py-3'>
+              {/* <div className='flex py-3'>
                 <input
                   type='text'
                   placeholder='Ma khuyen mai'
@@ -159,7 +209,7 @@ export default function Checkout() {
                 <button className='rounded-sm p-3 text-lg font-bold bg-slate-500 text-white flex-1 ml-1'>
                   Ap dung
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

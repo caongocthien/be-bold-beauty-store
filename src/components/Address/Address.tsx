@@ -1,18 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
 import { useLayoutEffect, useState } from 'react'
-import { Controller, ControllerProps } from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import { getProvinces } from '~/apis/provinces.api'
 import { Districts, Provinces, Ward } from '~/types/provinces.type'
-import { User } from '~/types/user.type'
-import { getUserToLocalStorage } from '~/utils/utils'
 
 interface Props {
   control?: any
+  defaultValue: string
 }
 
-export default function Address({ control }: Props) {
-  const user: User = JSON.parse(getUserToLocalStorage() || '')
-  const userAddress = user.address && user.address.split('-')
+export default function Address({ control, defaultValue }: Props) {
+  const userAddress = defaultValue && defaultValue.split('-')
 
   const getProvincesQuery = useQuery({
     queryKey: ['provinces'],
@@ -137,6 +135,15 @@ export default function Address({ control }: Props) {
                 })}
             </select>
           )}
+        />
+      </div>
+      <div className='flex text-xl py-3 items-center'>
+        <p className='min-w-[5rem]'>Địa chỉ chi tiết:</p>
+        <Controller
+          control={control}
+          name='detailAddress'
+          defaultValue={userAddress[3]}
+          render={({ field: { onChange, value } }) => <input className='ml-4 p-1' onChange={onChange} value={value} />}
         />
       </div>
     </div>
