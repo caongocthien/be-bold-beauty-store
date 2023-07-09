@@ -12,3 +12,10 @@ export const getProductDetail = (id: string) =>
       populate: 'deep, 4'
     }
   })
+
+export const updateProduct = (id: number, quantity: number) =>
+  http.put<AxiosResponse<any, any>>(`/api/bb-products/${id}?populate=?`, {
+    data: {
+      inventory: quantity
+    }
+  })

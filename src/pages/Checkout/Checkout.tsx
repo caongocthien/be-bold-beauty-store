@@ -2,9 +2,11 @@ import { useMutation } from '@tanstack/react-query'
 import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { createOrder } from '~/apis/order.api'
+import { updateProduct } from '~/apis/product.api'
 import Address from '~/components/Address'
 import { useAppSelector } from '~/hooks/hooks'
 import { OrderBody } from '~/types/order.type'
+import { Product } from '~/types/product.type'
 import { User } from '~/types/user.type'
 import { formatCurrency, getUserToLocalStorage } from '~/utils/utils'
 
@@ -42,7 +44,10 @@ export default function Checkout() {
   const user: User = JSON.parse(getUserToLocalStorage() || '')
 
   const createOrderMutation = useMutation({
-    mutationFn: (data: { body: OrderBody; userId: number }) => createOrder(data.body, data.userId)
+    mutationFn: (data: { body: any; userId: number }) => createOrder(data.body, data.userId)
+  })
+  const updateProductMutation = useMutation({
+    mutationFn: (data: { productId: number; quantity: number }) => updateProduct(data.productId, data.quantity)
   })
 
   useEffect(() => {
@@ -53,28 +58,41 @@ export default function Checkout() {
     setPaymentMethod(!paymentMethod)
   }
   const onSubmit = handleSubmit((data: FormData) => {
-    createOrderMutation.mutate({
-      body: {
-        userName: data.userName,
-        phone: data.phone,
-        address: `${data.provinces}-${data.district}-${data.ward}-${data.detailAddress}`,
-        additionalInfo: data.additionalInfo,
-        payment: paymentMethod ? 'cash' : 'bank',
-        isPayment: paymentMethod === true ? false : true,
-        subTotal: calculateSumPrice(),
-        total: totalPrice,
-        Products: cartItems?.map((item) => ({
-          productName: item.bb_product.data.attributes.name,
-          quantity: item.quantity,
-          priceOnProduct:
-            Number(item.bb_product.data.attributes.discountPrice) || Number(item.bb_product.data.attributes.price),
-          sumPrice:
-            (Number(item.bb_product.data.attributes.discountPrice) || Number(item.bb_product.data.attributes.price)) *
-            item.quantity
-        }))
+    createOrderMutation.mutate(
+      {
+        body: {
+          userName: data.userName,
+          phone: data.phone,
+          address: `${data.provinces}-${data.district}-${data.ward}-${data.detailAddress}`,
+          additionalInfo: data.additionalInfo,
+          payment: paymentMethod ? 'cash' : 'bank',
+          isPayment: paymentMethod === true ? false : true,
+          subTotal: calculateSumPrice(),
+          total: totalPrice,
+          products: cartItems?.map((item) => ({
+            productName: item.bb_product.data.attributes.name,
+            quantity: item.quantity,
+            priceOnProduct:
+              Number(item.bb_product.data.attributes.discountPrice) || Number(item.bb_product.data.attributes.price),
+            sumPrice:
+              (Number(item.bb_product.data.attributes.discountPrice) || Number(item.bb_product.data.attributes.price)) *
+              item.quantity,
+            bb_product: item.bb_product.data.id
+          }))
+        },
+        userId: user.id
       },
-      userId: user.id
-    })
+      {
+        onSuccess: (data) => {
+          data.data.data.attributes.products?.forEach((item: any) => {
+            updateProductMutation.mutate({
+              productId: item.bb_product.data.id,
+              quantity: item.bb_product.data.attributes.inventory - item.quantity
+            })
+          })
+        }
+      }
+    )
   })
   return (
     <div className='bg-[#F8F6F8] flex flex-col'>
