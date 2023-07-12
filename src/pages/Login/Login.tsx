@@ -33,12 +33,12 @@ export default function Login() {
         dispatch(saveJwtToLocalStorage(data.data))
         reset()
         toast.success('Login has been successfully!', {
-          autoClose: 2000
+          autoClose: 1000
         })
       },
       onError: (error: any) => {
         toast.error(error.response.data.error.message, {
-          autoClose: 2000
+          autoClose: 1000
         })
       }
     })

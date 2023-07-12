@@ -45,7 +45,7 @@ export default function Cart() {
     return price || 0
   }
 
-  const calculateteQuantity = (): number => {
+  const calculateQuantity = (): number => {
     const arrQuantity =
       cartItems &&
       cartItems.map((item) => {
@@ -131,7 +131,7 @@ export default function Cart() {
     <div className='container m-auto'>
       <div className=' mx-5'>
         <div className='flex justify-center text-4xl capitalize py-10'>Giỏ hàng</div>
-        {calculateteQuantity() !== 0 ? (
+        {calculateQuantity() !== 0 ? (
           <div className='relative overflow-x-auto'>
             <table className='w-full text-sm text-left text-gray-500 '>
               <thead className='text-gray-700 uppercase bg-gray-100 text-center'>
@@ -202,7 +202,7 @@ export default function Cart() {
                   <th scope='row' className='px-6 py-3 text-base'>
                     Tổng
                   </th>
-                  <td className='px-6 py-3'>{calculateteQuantity()}</td>
+                  <td className='px-6 py-3'>{calculateQuantity()}</td>
                   <td className='px-6 py-3'>{formatCurrency(calculateSumPrice())}</td>
                 </tr>
               </tfoot>

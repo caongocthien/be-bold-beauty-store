@@ -5,10 +5,12 @@ import { createOrder } from '~/apis/order.api'
 import { updateProduct } from '~/apis/product.api'
 import Address from '~/components/Address'
 import { useAppSelector } from '~/hooks/hooks'
-import { OrderBody } from '~/types/order.type'
-import { Product } from '~/types/product.type'
+import { toast } from 'react-toastify'
 import { User } from '~/types/user.type'
 import { formatCurrency, getUserToLocalStorage } from '~/utils/utils'
+import { Link, useNavigate } from 'react-router-dom'
+import { BodyUpdate, updateCart } from '~/apis/cart.api'
+import { queryClient } from '~/App'
 
 type FormData = {
   userName: string
@@ -21,6 +23,7 @@ type FormData = {
 }
 
 export default function Checkout() {
+  const navigate = useNavigate()
   const cart = useAppSelector((state) => state.cart.cart)
   const cartItems = cart?.attributes.cart_item
 
@@ -49,6 +52,26 @@ export default function Checkout() {
   const updateProductMutation = useMutation({
     mutationFn: (data: { productId: number; quantity: number }) => updateProduct(data.productId, data.quantity)
   })
+
+  const updateCartMutation = useMutation((cart: { cardId: number; body: BodyUpdate[] }) =>
+    updateCart(cart.cardId, cart.body)
+  )
+
+  const calculateQuantity = (): number => {
+    const arrQuantity =
+      cartItems &&
+      cartItems.map((item) => {
+        return item.quantity
+      })
+
+    const quantity =
+      arrQuantity &&
+      arrQuantity.reduce((prev, curr) => {
+        return Number(prev) + Number(curr)
+      }, 0)
+
+    return quantity || 0
+  }
 
   useEffect(() => {
     setTotalPrice(calculateSumPrice)
@@ -85,10 +108,31 @@ export default function Checkout() {
       {
         onSuccess: (data) => {
           data.data.data.attributes.products?.forEach((item: any) => {
-            updateProductMutation.mutate({
-              productId: item.bb_product.data.id,
-              quantity: item.bb_product.data.attributes.inventory - item.quantity
-            })
+            updateProductMutation.mutate(
+              {
+                productId: item.bb_product.data.id,
+                quantity: item.bb_product.data.attributes.inventory - item.quantity
+              },
+              {
+                onSuccess: () => {
+                  toast.success('Order has been successfully!', {
+                    autoClose: 1000
+                  })
+                  updateCartMutation.mutate(
+                    {
+                      cardId: cart?.id as number,
+                      body: []
+                    },
+                    {
+                      onSuccess: () => {
+                        queryClient.invalidateQueries({ queryKey: ['cart'] })
+                      }
+                    }
+                  )
+                  navigate('/')
+                }
+              }
+            )
           })
         }
       }
@@ -96,129 +140,134 @@ export default function Checkout() {
   })
   return (
     <div className='bg-[#F8F6F8] flex flex-col'>
-      <form onSubmit={onSubmit}>
-        <div className='bg-white my-20 mx-60 border-gray-300 border rounded-xl'>
-          <div className='grid grid-cols-12 p-10'>
-            {/* infor */}
-            <div className='col-span-8 pr-11'>
-              <div>
-                <p className='font-bold text-xl mt-6 mb-5'>Thông tin khách hàng</p>
-                <input
-                  className='border w-full outline-none rounded-sm p-3'
-                  type='email'
-                  placeholder='Email'
-                  disabled
-                  defaultValue={user.email}
-                />
-              </div>
-              <div>
-                <p className='font-bold text-xl mt-6 mb-5'>Chi tiết thanh toán</p>
-                <div className='flex'>
+      {calculateQuantity() !== 0 ? (
+        <form onSubmit={onSubmit}>
+          <div className='bg-white my-20 mx-60 border-gray-300 border rounded-xl'>
+            <div className='grid grid-cols-12 p-10'>
+              {/* infor */}
+              <div className='col-span-8 pr-11'>
+                <div>
+                  <p className='font-bold text-xl mt-6 mb-5'>Thông tin khách hàng</p>
                   <input
-                    className='border outline-none rounded-sm p-3 flex-1 mr-3'
-                    type='text'
-                    placeholder='Tên'
-                    defaultValue={user.username}
-                    {...register('userName')}
-                  />
-                  <input
-                    className='border outline-none rounded-sm p-3 flex-1'
-                    type='text'
-                    placeholder='Số điện thoại'
-                    defaultValue={user.phone}
-                    {...register('phone')}
+                    className='border w-full outline-none rounded-sm p-3'
+                    type='email'
+                    placeholder='Email'
+                    disabled
+                    defaultValue={user.email}
                   />
                 </div>
-                <Address control={control} defaultValue={user.address} />
-              </div>
-              <div>
-                <p className='font-bold text-xl mt-6 mb-5'>Ghi chú</p>
-                <textarea
-                  className='border w-full outline-none rounded-sm p-3'
-                  placeholder='Ghi chú'
-                  {...register('additionalInfo')}
-                />
-              </div>
-
-              <div>
-                <p className='font-bold text-xl mt-6 mb-5'>Phương thức thanh toán</p>
-                <div className='border'>
-                  <div className='flex items-center p-3 border-b bg-[#F8F6F8]'>
+                <div>
+                  <p className='font-bold text-xl mt-6 mb-5'>Chi tiết thanh toán</p>
+                  <div className='flex'>
                     <input
-                      defaultChecked
-                      type='radio'
-                      id='bank'
-                      name='paymentMethod'
-                      value={0}
-                      onChange={handlePaymentMethod}
+                      className='border outline-none rounded-sm p-3 flex-1 mr-3'
+                      type='text'
+                      placeholder='Tên'
+                      defaultValue={user.username}
+                      {...register('userName')}
                     />
-                    <label htmlFor='bank' className='ml-2 text-sm font-medium text-gray-900 '>
-                      Thanh toán khi nhận hàng
-                    </label>
+                    <input
+                      className='border outline-none rounded-sm p-3 flex-1'
+                      type='text'
+                      placeholder='Số điện thoại'
+                      defaultValue={user.phone}
+                      {...register('phone')}
+                    />
                   </div>
-                  {paymentMethod && (
-                    <div className='p-5 border-b'>
-                      Make your payment directly into our bank account. Please use your Order ID as the payment
-                      reference. Your order will not be shipped until the funds have cleared in our account.
+                  <Address control={control} defaultValue={user.address} />
+                </div>
+                <div>
+                  <p className='font-bold text-xl mt-6 mb-5'>Ghi chú</p>
+                  <textarea
+                    className='border w-full outline-none rounded-sm p-3'
+                    placeholder='Ghi chú'
+                    {...register('additionalInfo')}
+                  />
+                </div>
+
+                <div>
+                  <p className='font-bold text-xl mt-6 mb-5'>Phương thức thanh toán</p>
+                  <div className='border'>
+                    <div className='flex items-center p-3 border-b bg-[#F8F6F8]'>
+                      <input
+                        defaultChecked
+                        type='radio'
+                        id='bank'
+                        name='paymentMethod'
+                        value={0}
+                        onChange={handlePaymentMethod}
+                      />
+                      <label htmlFor='bank' className='ml-2 text-sm font-medium text-gray-900 '>
+                        Thanh toán khi nhận hàng
+                      </label>
                     </div>
-                  )}
-                  <div className='flex items-center border-b p-3 bg-[#F8F6F8]'>
-                    <input type='radio' id='cash' name='paymentMethod' value={1} onChange={handlePaymentMethod} />
-                    <label htmlFor='cash' className='ml-2 text-sm font-medium text-gray-900'>
-                      Thanh toán qua ngân hàng
-                    </label>
-                  </div>
-                  {!paymentMethod && <div className='p-5'>Pay with cash upon delivery.</div>}
-                </div>
-              </div>
-              <button type='submit' className='w-full rounded-sm p-3 bg-slate-400 my-5 text-white font-bold'>
-                Xác nhận thanh toán
-              </button>
-            </div>
-            {/* order */}
-            <div className='col-span-4'>
-              <p className='font-bold text-xl mt-6 mb-5'>Đơn hàng của bạn</p>
-              <div className='border rounded-md'>
-                <div className='flex justify-between font-bold text-gray-500 border-b p-4'>
-                  <p>Product</p>
-                  <p>Subtotal</p>
-                </div>
-                <div className=' border-b '>
-                  {cartItems?.map((item) => {
-                    return (
-                      <div key={item.id} className='flex justify-between p-4 items-center'>
-                        <div className='flex items-center'>
-                          <img
-                            src={item.bb_product.data.attributes.productImage.data[0].attributes.url}
-                            width={50}
-                            height={50}
-                            alt={item.bb_product.data.attributes.name}
-                            className='rounded-sm'
-                          />
-                          <p className='truncate ml-2 max-w-[150px]'>{item.bb_product.data.attributes.name}</p>
-                        </div>
-                        <div>x{item.quantity}</div>
-                        <div>
-                          {formatCurrency(
-                            Number(
-                              item.bb_product.data.attributes.discountPrice || item.bb_product.data.attributes.price
-                            ) * item.quantity
-                          )}
-                        </div>
+                    {paymentMethod && (
+                      <div className='p-5 border-b'>
+                        Make your payment directly into our bank account. Please use your Order ID as the payment
+                        reference. Your order will not be shipped until the funds have cleared in our account.
                       </div>
-                    )
-                  })}
+                    )}
+                    <div className='flex items-center border-b p-3 bg-[#F8F6F8]'>
+                      <input type='radio' id='cash' name='paymentMethod' value={1} onChange={handlePaymentMethod} />
+                      <label htmlFor='cash' className='ml-2 text-sm font-medium text-gray-900'>
+                        Thanh toán qua ngân hàng
+                      </label>
+                    </div>
+                    {!paymentMethod && <div className='p-5'>Pay with cash upon delivery.</div>}
+                  </div>
                 </div>
-                <div className='flex justify-between p-4 border-b items-center   '>
-                  <div className='font-bold text-gray-500'>Subtotal</div>
-                  <div>{formatCurrency(calculateSumPrice())}</div>
-                </div>
-                <div className='flex justify-between p-4 items-center'>
-                  <div className='font-bold text-xl text-gray-600'>Total</div>
-                  <div>{formatCurrency(totalPrice)}</div>
-                </div>
+                <button
+                  disabled={createOrderMutation.isLoading || updateProductMutation.isLoading}
+                  type='submit'
+                  className='w-full rounded-sm p-3 bg-slate-400 my-5 text-white font-bold'
+                >
+                  Xác nhận thanh toán
+                </button>
               </div>
-              {/* <div className='flex py-3'>
+              {/* order */}
+              <div className='col-span-4'>
+                <p className='font-bold text-xl mt-6 mb-5'>Đơn hàng của bạn</p>
+                <div className='border rounded-md'>
+                  <div className='flex justify-between font-bold text-gray-500 border-b p-4'>
+                    <p>Product</p>
+                    <p>Subtotal</p>
+                  </div>
+                  <div className=' border-b '>
+                    {cartItems?.map((item) => {
+                      return (
+                        <div key={item.id} className='flex justify-between p-4 items-center'>
+                          <div className='flex items-center'>
+                            <img
+                              src={item.bb_product.data.attributes.productImage.data[0].attributes.url}
+                              width={50}
+                              height={50}
+                              alt={item.bb_product.data.attributes.name}
+                              className='rounded-sm'
+                            />
+                            <p className='truncate ml-2 max-w-[150px]'>{item.bb_product.data.attributes.name}</p>
+                          </div>
+                          <div>x{item.quantity}</div>
+                          <div>
+                            {formatCurrency(
+                              Number(
+                                item.bb_product.data.attributes.discountPrice || item.bb_product.data.attributes.price
+                              ) * item.quantity
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className='flex justify-between p-4 border-b items-center   '>
+                    <div className='font-bold text-gray-500'>Subtotal</div>
+                    <div>{formatCurrency(calculateSumPrice())}</div>
+                  </div>
+                  <div className='flex justify-between p-4 items-center'>
+                    <div className='font-bold text-xl text-gray-600'>Total</div>
+                    <div>{formatCurrency(totalPrice)}</div>
+                  </div>
+                </div>
+                {/* <div className='flex py-3'>
                 <input
                   type='text'
                   placeholder='Ma khuyen mai'
@@ -228,10 +277,22 @@ export default function Checkout() {
                   Ap dung
                 </button>
               </div> */}
+              </div>
             </div>
           </div>
+        </form>
+      ) : (
+        <div className='flex flex-col items-center bg-white p-7'>
+          <img
+            src='https://assets.materialup.com/uploads/16e7d0ed-140b-4f86-9b7e-d9d1c04edb2b/preview.png'
+            alt='Empty cart'
+            className='max-w-xs '
+          />
+          <Link className='p-3 bg-pink-200 rounded shadow-sm' to={'/'}>
+            Giỏ hàng rỗng hãy quay trở lại trang mua hàng
+          </Link>
         </div>
-      </form>
+      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios'
-import { Order, OrderBody } from '~/types/order.type'
+import { OrderBody } from '~/types/order.type'
 import http from '~/utils/http'
 
 export const createOrder = (body: Omit<OrderBody, 'users_permissions_user'>, userId: number) =>
