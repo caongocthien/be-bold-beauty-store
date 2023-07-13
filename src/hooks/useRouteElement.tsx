@@ -1,15 +1,27 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Outlet, useRoutes } from 'react-router-dom'
-import Home from '../pages/Home'
-import Login from '../pages/Login'
-import Register from '../pages/Register'
 import RegisterLayout from '../layouts/RegisterLayout'
 import MainLayout from '../layouts/MainLayout'
-import Profile from '../pages/Profile'
 import { useAppSelector } from './hooks'
-import Product from '../pages/ProductDetail'
-import Products from '../pages/Products'
-import Cart from '~/pages/Cart'
-import Checkout from '~/pages/Checkout'
+// import Home from '../pages/Home'
+// import Login from '../pages/Login'
+// import Register from '../pages/Register'
+// import Profile from '../pages/Profile'
+// import Product from '../pages/ProductDetail'
+// import Products from '../pages/Products'
+// import Cart from '~/pages/Cart'
+// import Checkout from '~/pages/Checkout'
+// import NotFound from '~/pages/NotFound'
+
+const Home = lazy(() => import('../pages/Home'))
+const Login = lazy(() => import('../pages/Login'))
+const Register = lazy(() => import('../pages/Register'))
+const Profile = lazy(() => import('../pages/Profile'))
+const Product = lazy(() => import('../pages/ProductDetail'))
+const Products = lazy(() => import('../pages/Products'))
+const Cart = lazy(() => import('../pages/Cart'))
+const Checkout = lazy(() => import('../pages/Checkout'))
+const NotFound = lazy(() => import('../pages/NotFound'))
 
 export default function useRouteElement() {
   const isAuthentication = useAppSelector((state) => state.auth.isAuthentication)
@@ -26,7 +38,9 @@ export default function useRouteElement() {
       path: '/',
       element: (
         <MainLayout>
-          <Home />
+          <Suspense>
+            <Home />
+          </Suspense>
         </MainLayout>
       )
     },
@@ -38,7 +52,9 @@ export default function useRouteElement() {
           path: '/profile',
           element: (
             <MainLayout>
-              <Profile />
+              <Suspense>
+                <Profile />
+              </Suspense>
             </MainLayout>
           )
         }
@@ -52,7 +68,9 @@ export default function useRouteElement() {
           path: '/login',
           element: (
             <RegisterLayout>
-              <Login />
+              <Suspense>
+                <Login />
+              </Suspense>
             </RegisterLayout>
           )
         },
@@ -60,7 +78,9 @@ export default function useRouteElement() {
           path: '/register',
           element: (
             <RegisterLayout>
-              <Register />
+              <Suspense>
+                <Register />
+              </Suspense>
             </RegisterLayout>
           )
         }
@@ -70,7 +90,9 @@ export default function useRouteElement() {
       path: '/product/:nameId',
       element: (
         <MainLayout>
-          <Product />
+          <Suspense>
+            <Product />
+          </Suspense>
         </MainLayout>
       )
     },
@@ -78,7 +100,9 @@ export default function useRouteElement() {
       path: '/products/all-products',
       element: (
         <MainLayout>
-          <Products />
+          <Suspense>
+            <Products />
+          </Suspense>
         </MainLayout>
       )
     },
@@ -86,7 +110,9 @@ export default function useRouteElement() {
       path: '/products/category/:nameId',
       element: (
         <MainLayout>
-          <Products />
+          <Suspense>
+            <Products />
+          </Suspense>
         </MainLayout>
       )
     },
@@ -94,7 +120,9 @@ export default function useRouteElement() {
       path: '/products/brand/:nameId',
       element: (
         <MainLayout>
-          <Products />
+          <Suspense>
+            <Products />
+          </Suspense>
         </MainLayout>
       )
     },
@@ -106,7 +134,9 @@ export default function useRouteElement() {
           path: '/cart',
           element: (
             <MainLayout>
-              <Cart />
+              <Suspense>
+                <Cart />
+              </Suspense>
             </MainLayout>
           )
         }
@@ -120,11 +150,23 @@ export default function useRouteElement() {
           path: '/checkout',
           element: (
             <MainLayout>
-              <Checkout />
+              <Suspense>
+                <Checkout />
+              </Suspense>
             </MainLayout>
           )
         }
       ]
+    },
+    {
+      path: '*',
+      element: (
+        <MainLayout>
+          <Suspense>
+            <NotFound />
+          </Suspense>
+        </MainLayout>
+      )
     }
   ])
 

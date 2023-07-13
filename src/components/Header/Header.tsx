@@ -13,8 +13,10 @@ import { getCarts } from '~/apis/cart.api'
 import { User } from '~/types/user.type'
 import { getCart } from '~/slice/cart/cartSlice'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function Header() {
+  const { t, i18n } = useTranslation()
   const dispatch = useAppDispatch()
   const auth = useAppSelector((state) => state.auth.isAuthentication)
   const cart = useAppSelector((state) => state.cart.cart?.attributes.cart_item)
@@ -54,6 +56,10 @@ export default function Header() {
       }, 0)
     return price || 0
   }
+
+  const handleChangeLanguage = (lng: 'vi' | 'en') => {
+    i18n.changeLanguage(lng)
+  }
   return (
     <header className='sticky top-0 z-10 bg-white w-full border-b-[1px] border-[#f7dee6]'>
       <nav className='flex items-center justify-between h-20 '>
@@ -86,30 +92,59 @@ export default function Header() {
             ))}
         </div>
         <div className='flex items-center'>
+          <Popover
+            refElement={
+              <img
+                className='w-6 h-6 mx-4 rounded-full'
+                src={
+                  i18n.language === 'vi'
+                    ? 'https://cdn-icons-png.flaticon.com/512/323/323319.png'
+                    : 'https://cleandye.com/wp-content/uploads/2020/01/English-icon.png'
+                }
+                alt='lang'
+              />
+            }
+          >
+            <div className='bg-white rounded shadow flex flex-col py-3'>
+              <button
+                onClick={() => handleChangeLanguage('vi')}
+                className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'
+              >
+                Tiếng Việt
+              </button>
+              <button
+                onClick={() => handleChangeLanguage('en')}
+                className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'
+              >
+                English
+              </button>
+            </div>
+          </Popover>
+
           <Popover refElement={<FaUserAlt className='text-lg ' />}>
             <div className='bg-white rounded shadow flex flex-col py-3'>
               {auth ? (
                 <>
                   <Link to={'/profile'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
-                    My account
+                    {t('my account')}
                   </Link>
                   <Link to={'/'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
-                    My purcharse
+                    {t('my purcharse')}
                   </Link>
                   <button
                     onClick={handleLogout}
                     className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500 text-start'
                   >
-                    Log out
+                    {t('log out')}
                   </button>
                 </>
               ) : (
                 <>
                   <Link to={'/register'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
-                    Sign up
+                    {t('log out')}
                   </Link>
                   <Link to={'/login'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
-                    Sign in
+                    {t('sign in')}
                   </Link>
                 </>
               )}
@@ -131,7 +166,7 @@ export default function Header() {
                 }
               >
                 <div className='bg-white rounded shadow flex flex-col py-3  max-w-md'>
-                  <div className='text-gray-500 px-7'>Sản phẩm có trong giỏ hàng </div>
+                  <div className='text-gray-500 px-7'> {t('products in cart')}</div>
                   {cart && cart?.length > 0 ? (
                     <div className='mt-5'>
                       {cart?.map(

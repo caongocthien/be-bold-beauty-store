@@ -6,6 +6,7 @@ import { store } from './store.ts'
 import { Provider } from 'react-redux'
 import App from './App.tsx'
 import './index.css'
+import './i18n/i18n.ts'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
