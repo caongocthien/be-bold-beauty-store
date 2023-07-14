@@ -11,6 +11,7 @@ import { getBrands } from '~/apis/brand.api'
 import Product from '~/components/Product'
 import CONSTANTS from '~/constants/constants'
 import { generateNameId } from '~/utils/utils'
+import { Helmet } from 'react-helmet'
 
 export default function Home() {
   const brandsQuery = useQuery({
@@ -23,6 +24,10 @@ export default function Home() {
 
   return (
     <div className='w-full'>
+      <Helmet>
+        <title>Trang chủ</title>
+        <meta name='description' content='Trang chủ' />
+      </Helmet>
       {/* banner 1 */}
       <Banner
         classNameBanner='lg:bg-fixed min-h-[70vh]'

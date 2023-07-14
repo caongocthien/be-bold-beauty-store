@@ -1,0 +1,9 @@
+{
+  "province": "Province",
+  "select province / city": "Select Province / City",
+  "district": "District",
+  "select district": "Select District / District",
+  "ward": "Ward",
+  "select ward": "Select Ward",
+  "detail address": "Detail address"
+}

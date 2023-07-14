@@ -141,7 +141,7 @@ export default function Header() {
               ) : (
                 <>
                   <Link to={'/register'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
-                    {t('log out')}
+                    {t('sign up')}
                   </Link>
                   <Link to={'/login'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
                     {t('sign in')}

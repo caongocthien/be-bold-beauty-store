@@ -9,6 +9,7 @@ import { ProductListConfig } from '~/types/product.type'
 import { getBrand } from '~/apis/brand.api'
 import { getCategory } from '~/apis/category.api'
 import CONSTANTS from '~/constants/constants'
+import { Helmet } from 'react-helmet'
 
 export type QueryConfig = {
   [key in keyof ProductListConfig]: string
@@ -96,6 +97,21 @@ export default function Products() {
 
   return (
     <div className='container m-auto '>
+      <Helmet>
+        <title>
+          {(pathname.includes('category') && categoryQuery.data?.data.data.attributes.name) ||
+            (pathname.includes('brand') && brandQuery.data?.data.data.attributes.name) ||
+            ''}
+        </title>
+        <meta
+          name='description'
+          content={
+            (pathname.includes('category') && categoryQuery.data?.data.data.attributes.name) ||
+            (pathname.includes('brand') && brandQuery.data?.data.data.attributes.name) ||
+            ''
+          }
+        />
+      </Helmet>
       <div className='py-16 mx-5'>
         <div className='text-base text-gray-400 mb-4'>Home/Skin Care</div>
         <div className='text-6xl mb-16'>

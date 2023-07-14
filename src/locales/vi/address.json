@@ -1,0 +1,9 @@
+{
+  "province": "Tỉnh",
+  "select province / city": "Chọn Tỉnh / Thành Phố",
+  "district": "Quận",
+  "select district": "Chọn Quận / Huyện",
+  "ward": "Phường",
+  "select ward": "Chọn Phường / Xã",
+  "detail address": "Địa chỉ chi tiết"
+}

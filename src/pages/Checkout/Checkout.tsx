@@ -11,6 +11,7 @@ import { formatCurrency, getUserToLocalStorage } from '~/utils/utils'
 import { Link, useNavigate } from 'react-router-dom'
 import { BodyUpdate, updateCart } from '~/apis/cart.api'
 import { queryClient } from '~/App'
+import { Helmet } from 'react-helmet'
 
 type FormData = {
   userName: string
@@ -140,6 +141,10 @@ export default function Checkout() {
   })
   return (
     <div className='bg-[#F8F6F8] flex flex-col'>
+      <Helmet>
+        <title>Thanh toán</title>
+        <meta name='description' content='Thanh toán' />
+      </Helmet>
       {calculateQuantity() !== 0 ? (
         <form onSubmit={onSubmit}>
           <div className='bg-white my-20 mx-60 border-gray-300 border rounded-xl'>

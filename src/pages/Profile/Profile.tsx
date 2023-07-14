@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
+import { Helmet } from 'react-helmet'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { updateUser } from '~/apis/auth.api'
@@ -41,6 +42,10 @@ export default function Profile() {
 
   return (
     <div className='flex flex-col items-center my-10'>
+      <Helmet>
+        <title>{user.username}</title>
+        <meta name='description' content='Thông tin khách hàng' />
+      </Helmet>
       <p className='text-2xl font-bold uppercase p-10'>Thông tin tài khoản</p>
       <form onSubmit={onSubmit}>
         <div className='flex text-xl py-3 items-center'>

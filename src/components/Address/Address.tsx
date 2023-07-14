@@ -3,13 +3,15 @@ import { useLayoutEffect, useState } from 'react'
 import { Controller } from 'react-hook-form'
 import { getProvinces } from '~/apis/provinces.api'
 import { Districts, Provinces, Ward } from '~/types/provinces.type'
-
+import { useTranslation } from 'react-i18next'
 interface Props {
   control?: any
   defaultValue: string
 }
 
 export default function Address({ control, defaultValue }: Props) {
+  const { t } = useTranslation('address')
+
   const userAddress = defaultValue && defaultValue.split('-')
 
   const getProvincesQuery = useQuery({
@@ -55,7 +57,7 @@ export default function Address({ control, defaultValue }: Props) {
   return (
     <div>
       <div className='flex text-xl py-3 items-center'>
-        <p className='min-w-[5rem]'>Tỉnh:</p>
+        <p className='min-w-[5rem]'>{t('province')}:</p>
         <Controller
           control={control}
           name='provinces'
@@ -69,7 +71,7 @@ export default function Address({ control, defaultValue }: Props) {
                 handleChangeProvinces(e)
               }}
             >
-              <option>Chọn Tỉnh / Thành Phố</option>
+              <option>{t('select province / city')}</option>
               {provinces &&
                 provinces.map((province) => {
                   return (
@@ -83,7 +85,7 @@ export default function Address({ control, defaultValue }: Props) {
         />
       </div>
       <div className='flex text-xl py-3 items-center'>
-        <p className='min-w-[5rem]'>Quận:</p>
+        <p className='min-w-[5rem]'>{t('district')}:</p>
         <Controller
           control={control}
           name='district'
@@ -97,7 +99,7 @@ export default function Address({ control, defaultValue }: Props) {
                 handleChangeDistrict(e)
               }}
             >
-              <option>Chọn Quận / Huyện</option>
+              <option>{t('select district')}</option>
               {districts &&
                 districts.map((district) => {
                   return (
@@ -111,7 +113,7 @@ export default function Address({ control, defaultValue }: Props) {
         />
       </div>
       <div className='flex text-xl py-3 items-center'>
-        <p className='min-w-[5rem]'>Phường:</p>
+        <p className='min-w-[5rem]'>{t('ward')}:</p>
         <Controller
           control={control}
           name='ward'
@@ -124,7 +126,7 @@ export default function Address({ control, defaultValue }: Props) {
                 onChange(e)
               }}
             >
-              <option>Chọn Phường / Xã</option>
+              <option>{t('select ward')}</option>
               {wards &&
                 wards.map((ward) => {
                   return (
@@ -138,7 +140,7 @@ export default function Address({ control, defaultValue }: Props) {
         />
       </div>
       <div className='flex text-xl py-3 items-center'>
-        <p className='min-w-[5rem]'>Địa chỉ chi tiết:</p>
+        <p className='min-w-[5rem]'>{t('detail address')}:</p>
         <Controller
           control={control}
           name='detailAddress'

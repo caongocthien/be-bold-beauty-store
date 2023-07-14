@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { produce } from 'immer'
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet'
 import { Link } from 'react-router-dom'
 import { queryClient } from '~/App'
 import { BodyUpdate, updateCart } from '~/apis/cart.api'
@@ -129,6 +130,10 @@ export default function Cart() {
 
   return (
     <div className='container m-auto'>
+      <Helmet>
+        <title>Giỏ hàng</title>
+        <meta name='description' content='Giỏ hàng watch store' />
+      </Helmet>
       <div className=' mx-5'>
         <div className='flex justify-center text-4xl capitalize py-10'>Giỏ hàng</div>
         {calculateQuantity() !== 0 ? (

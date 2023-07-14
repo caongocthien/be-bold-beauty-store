@@ -16,6 +16,7 @@ import { BodyUpdate, updateCart } from '~/apis/cart.api'
 import { queryClient } from '~/App'
 import { toast } from 'react-toastify'
 import QuantityController from '~/components/QuantityController'
+import { Helmet } from 'react-helmet'
 
 export default function ProductDetail() {
   const navigate = useNavigate()
@@ -111,6 +112,10 @@ export default function ProductDetail() {
   if (!product) return null
   return (
     <div className='container m-auto py-10 px-5'>
+      <Helmet>
+        <title>{product.attributes.name}</title>
+        <meta name='description' content={product.attributes.name} />
+      </Helmet>
       <div className='grid grid-cols-12 gap-9 mb-10'>
         <div className='col-span-5 '>
           <div

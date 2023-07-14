@@ -7,6 +7,7 @@ import { login } from '~/apis/auth.api'
 import { toast } from 'react-toastify'
 import { useAppDispatch } from '~/hooks/hooks'
 import { saveJwtToLocalStorage } from '~/slice/auth/authSlice'
+import { Helmet } from 'react-helmet'
 
 type FormData = Pick<Schema, 'identifier' | 'password'>
 
@@ -45,6 +46,10 @@ export default function Login() {
   })
   return (
     <div className='py-60 h-[calc(100vh_-_81px)]  bg-center bg-no-repeat bg-cover bg-white bg-[url("https://static.vecteezy.com/system/resources/previews/002/690/523/original/white-3d-pedestal-background-with-hibiscus-flower-for-cosmetic-product-presentation-fashion-magazine-copy-space-illustration-free-vector.jpg")]'>
+      <Helmet>
+        <title>Đăng nhập</title>
+        <meta name='description' content='Đăng nhập' />
+      </Helmet>
       <div className=' bg-[#F6EDF0] p-10 max-w-xl  m-auto rounded-xl'>
         <form onSubmit={onSubmit} className='flex flex-col '>
           <input
