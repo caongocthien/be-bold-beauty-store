@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import { Link, NavLink } from 'react-router-dom'
 import { FaUserAlt } from 'react-icons/fa'
 import { HiShoppingBag } from 'react-icons/hi'
@@ -12,14 +13,18 @@ import { formatCurrency, generateNameId } from '~/utils/utils'
 import { getCarts } from '~/apis/cart.api'
 import { User } from '~/types/user.type'
 import { getCart } from '~/slice/cart/cartSlice'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { RxHamburgerMenu } from 'react-icons/rx'
+import { AiOutlineClose } from 'react-icons/ai'
 
 export default function Header() {
   const { t, i18n } = useTranslation()
   const dispatch = useAppDispatch()
   const auth = useAppSelector((state) => state.auth.isAuthentication)
   const cart = useAppSelector((state) => state.cart.cart?.attributes.cart_item)
+
+  const [isOpenMobileMenu, setIsOpenMobileMenu] = useState(true)
 
   const user: User = localStorage.getItem('user') && JSON.parse(localStorage.getItem('user') as string)
   const categoriesQuery = useQuery({
@@ -62,15 +67,15 @@ export default function Header() {
   }
   return (
     <header className='sticky top-0 z-10 bg-white w-full border-b-[1px] border-[#f7dee6]'>
-      <nav className='flex items-center justify-between h-20 '>
+      <nav className='hidden items-center justify-between h-20 md:flex'>
         <Link to='/'>
           <img
-            width={104}
-            height={49}
-            src='https://websitedemos.net/be-bold-beauty-store-04/wp-content/uploads/sites/1117/2022/08/logo-regular.png'
+            width={50}
+            height={50}
+            src='/src/assets/pngwing.com.png'
             alt='Be Bold'
             decoding='async'
-            srcSet='https://websitedemos.net/be-bold-beauty-store-04/wp-content/uploads/sites/1117/2022/08/logo-regular.png 1x, https://websitedemos.net/be-bold-beauty-store-02/wp-content/uploads/sites/1117/2022/08/logo-retina.png 2x'
+            srcSet='/src/assets/pngwing.com.png'
           />
         </Link>
         <div className='flex text-base uppercase font-medium items-center h-full'>
@@ -92,67 +97,9 @@ export default function Header() {
             ))}
         </div>
         <div className='flex items-center'>
-          <Popover
-            refElement={
-              <img
-                className='w-6 h-6 mx-4 rounded-full'
-                src={
-                  i18n.language === 'vi'
-                    ? 'https://cdn-icons-png.flaticon.com/512/323/323319.png'
-                    : 'https://cleandye.com/wp-content/uploads/2020/01/English-icon.png'
-                }
-                alt='lang'
-              />
-            }
-          >
-            <div className='bg-white rounded shadow flex flex-col py-3'>
-              <button
-                onClick={() => handleChangeLanguage('vi')}
-                className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'
-              >
-                Tiếng Việt
-              </button>
-              <button
-                onClick={() => handleChangeLanguage('en')}
-                className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'
-              >
-                English
-              </button>
-            </div>
-          </Popover>
-
-          <Popover refElement={<FaUserAlt className='text-lg ' />}>
-            <div className='bg-white rounded shadow flex flex-col py-3'>
-              {auth ? (
-                <>
-                  <Link to={'/profile'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
-                    {t('my account')}
-                  </Link>
-                  <Link to={'/'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
-                    {t('my purcharse')}
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500 text-start'
-                  >
-                    {t('log out')}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link to={'/register'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
-                    {t('sign up')}
-                  </Link>
-                  <Link to={'/login'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
-                    {t('sign in')}
-                  </Link>
-                </>
-              )}
-            </div>
-          </Popover>
           {auth && (
             <>
-              <div className='font-bold mx-4'>{formatCurrency(calculateSumPrice())} đ</div>
+              {cart?.length !== 0 && <div className='font-bold mx-4'>{formatCurrency(calculateSumPrice())} đ</div>}
               <Popover
                 refElement={
                   <Link to={'/cart'} className='relative'>
@@ -215,6 +162,146 @@ export default function Header() {
               </Popover>
             </>
           )}
+          <Popover
+            refElement={
+              <img
+                className='w-6 h-6 ml-4 mr-3 rounded-full'
+                src={
+                  i18n.language === 'vi'
+                    ? 'https://cdn-icons-png.flaticon.com/512/323/323319.png'
+                    : 'https://cleandye.com/wp-content/uploads/2020/01/English-icon.png'
+                }
+                alt='lang'
+              />
+            }
+          >
+            <div className='bg-white rounded shadow flex flex-col py-3'>
+              <button
+                onClick={() => handleChangeLanguage('vi')}
+                className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'
+              >
+                Tiếng Việt
+              </button>
+              <button
+                onClick={() => handleChangeLanguage('en')}
+                className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'
+              >
+                English
+              </button>
+            </div>
+          </Popover>
+
+          <Popover refElement={<FaUserAlt className='text-lg' />}>
+            <div className='bg-white rounded shadow flex flex-col py-3'>
+              {auth ? (
+                <>
+                  <Link to={'/profile'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
+                    {t('my account')}
+                  </Link>
+                  <Link to={'/cart'} className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500'>
+                    {t('my cart')}
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className='py-2 hover:bg-[#F6EDF0] px-6 hover:text-gray-500 text-start'
+                  >
+                    {t('log out')}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to={'/register'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
+                    {t('sign up')}
+                  </Link>
+                  <Link to={'/login'} className='py-2 hover:bg-[#F6EDF0] px-10 hover:text-gray-500'>
+                    {t('sign in')}
+                  </Link>
+                </>
+              )}
+            </div>
+          </Popover>
+        </div>
+      </nav>
+
+      <nav className='md:hidden h-14 flex items-center justify-between'>
+        <Link to='/'>
+          <img
+            width={40}
+            height={40}
+            src='/src/assets/pngwing.com.png'
+            alt='Be Bold'
+            decoding='async'
+            srcSet='/src/assets/pngwing.com.png'
+          />
+        </Link>
+        <div className='flex items-center'>
+          {auth && cart?.length !== 0 && (
+            <Link to={'/cart'} className='font-bold mx-4 flex justify-end'>
+              {formatCurrency(calculateSumPrice())} đ
+            </Link>
+          )}
+          <RxHamburgerMenu className='cursor-pointer' onClick={() => setIsOpenMobileMenu((prev) => !prev)} />
+        </div>
+        <div hidden={isOpenMobileMenu} className='bg-white absolute inset-0 h-screen'>
+          <div className='h-14 flex items-center justify-end'>
+            <AiOutlineClose onClick={() => setIsOpenMobileMenu((prev) => !prev)} />
+          </div>
+          <div>
+            <div className='border-b py-10'>
+              {categoriesQuery.data?.data.data &&
+                categoriesQuery.data?.data.data.map((item) => (
+                  <Link
+                    onClick={() => setIsOpenMobileMenu((prev) => !prev)}
+                    key={item.id}
+                    to={`/products/category/${generateNameId({ name: item.attributes.name, id: item.id })}`}
+                    className='px-3 py-1 h-full text-xl font-bold flex items-center hover:text-[#f09db8]'
+                    state={{ title: item.attributes.name, query: CONSTANTS.queryParam.GET_PRODUCTS_BY_CATEGORY }}
+                  >
+                    {item.attributes.name}
+                  </Link>
+                ))}
+            </div>
+            <div className='flex flex-col py-3'>
+              <button
+                onClick={() => handleChangeLanguage('vi')}
+                className={classNames('py-2 px-3 text-start', {
+                  'text-red-400': i18n.language === 'vi'
+                })}
+              >
+                Tiếng Việt
+              </button>
+              <button
+                onClick={() => handleChangeLanguage('en')}
+                className={classNames('py-2 px-3 text-start', {
+                  'text-red-400': i18n.language === 'en'
+                })}
+              >
+                English
+              </button>
+              {auth ? (
+                <>
+                  <Link to={'/profile'} className='py-2 px-3'>
+                    {t('my account')}
+                  </Link>
+                  <Link to={'/cart'} className='py-2 px-3'>
+                    {t('my cart')}
+                  </Link>
+                  <button onClick={handleLogout} className='py-2 px-3 text-start'>
+                    {t('log out')}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link to={'/register'} className='py-2 px-10'>
+                    {t('sign up')}
+                  </Link>
+                  <Link to={'/login'} className='py-2 px-10'>
+                    {t('sign in')}
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </nav>
     </header>
